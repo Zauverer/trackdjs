@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Edit3, Loader2, MapPin, Save } from "lucide-react";
 import { ActionButton } from "@/components/action-button";
 import { SocialLinks } from "@/components/social-links";
@@ -12,7 +12,7 @@ import type { Database } from "@/lib/supabase/types";
 
 const fields = [
   ["username", "Username"],
-  ["display_name", "Nombre visible"],
+  ["full_name", "Nombre visible"],
   ["city", "Ciudad"],
   ["bio", "Bio"],
   ["instagram_url", "Instagram"],
@@ -24,16 +24,16 @@ const fields = [
 
 export default function ProfilePage() {
   const { loading, user, profile, refreshProfile } = useSession();
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     if (!profile) return;
     setForm({
       username: profile.username ?? "",
-      display_name: profile.display_name ?? "",
+      full_name: profile.full_name ?? profile.display_name ?? "",
       city: profile.city ?? "",
       bio: profile.bio ?? "",
       instagram_url: profile.instagram_url ?? "",
@@ -46,33 +46,57 @@ export default function ProfilePage() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!supabase || !user) return;
-    setSaving(true);
-    setMessage("");
-
-    const payload: Database["public"]["Tables"]["profiles"]["Update"] = {
-      username: clean(form.username),
-      display_name: clean(form.display_name),
-      city: clean(form.city),
-      bio: clean(form.bio),
-      instagram_url: clean(form.instagram_url),
-      tiktok_url: clean(form.tiktok_url),
-      spotify_url: clean(form.spotify_url),
-      spotify_playlist_url: clean(form.spotify_playlist_url),
-      website_url: clean(form.website_url),
-      updated_at: new Date().toISOString()
-    };
-
-    const { error } = await supabase.from("profiles").update(payload).eq("id", user.id);
-    setSaving(false);
-
-    if (error) {
-      setMessage(error.message);
+    if (!supabase || !user) {
+      setStatus({ type: "error", text: "Necesitas iniciar sesión para guardar tu perfil." });
       return;
     }
+    setSaving(true);
+    setStatus(null);
 
-    await refreshProfile();
-    setMessage("Perfil guardado.");
+    try {
+      const username = normalizeUsername(form.username) ?? usernameFromEmail(user.email);
+      const payload: Database["public"]["Tables"]["profiles"]["Insert"] = {
+        id: user.id,
+        email: user.email ?? null,
+        username,
+        full_name: clean(form.full_name),
+        avatar_url: profile?.avatar_url ?? null,
+        city: clean(form.city),
+        bio: clean(form.bio),
+        instagram_url: clean(form.instagram_url),
+        tiktok_url: clean(form.tiktok_url),
+        spotify_url: clean(form.spotify_url),
+        spotify_playlist_url: clean(form.spotify_playlist_url),
+        website_url: clean(form.website_url),
+        public_contact_enabled: profile?.public_contact_enabled ?? false,
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = await withTimeout(
+        supabase.from("profiles").upsert(payload, { onConflict: "id" }),
+        12000
+      );
+
+      if (error) {
+        console.error("Profile save error", error);
+        setStatus({ type: "error", text: friendlyProfileError(error.message) });
+        return;
+      }
+
+      try {
+        await withTimeout(refreshProfile(), 8000);
+      } catch (error) {
+        console.error("Profile refresh error", error);
+      }
+
+      setForm((current) => ({ ...current, username }));
+      setStatus({ type: "success", text: "Perfil guardado." });
+    } catch (error) {
+      console.error("Profile save error", error);
+      setStatus({ type: "error", text: "No pudimos guardar tu perfil. Intenta nuevamente." });
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (loading) {
@@ -93,7 +117,7 @@ export default function ProfilePage() {
     );
   }
 
-  const displayName = profile?.display_name ?? profile?.username ?? user.email ?? "TrackDJs";
+  const displayName = profile?.full_name ?? profile?.display_name ?? profile?.username ?? user.email ?? "TrackDJs";
   const username = profile?.username ?? "track";
 
   return (
@@ -143,7 +167,11 @@ export default function ProfilePage() {
             {saving ? <Loader2 className="animate-spin" size={17} /> : <Save size={17} />} Guardar perfil
           </button>
           <Link href={`/u/${username}`} className="text-sm font-bold text-cyan">Ver perfil público</Link>
-          {message ? <span className="text-sm font-bold text-muted">{message}</span> : null}
+          {status ? (
+            <span className={`text-sm font-bold ${status.type === "success" ? "text-success" : "text-pulse"}`}>
+              {status.text}
+            </span>
+          ) : null}
         </div>
       </form>
     </div>
@@ -153,4 +181,44 @@ export default function ProfilePage() {
 function clean(value?: string) {
   const text = value?.trim();
   return text ? text : null;
+}
+
+function normalizeUsername(value?: string) {
+  const text = value
+    ?.trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 24);
+
+  return text || null;
+}
+
+function usernameFromEmail(email?: string | null) {
+  return normalizeUsername(email?.split("@")[0]) ?? `track_${Date.now().toString(36).slice(-5)}`;
+}
+
+function friendlyProfileError(message: string) {
+  const text = message.toLowerCase();
+  if (text.includes("duplicate") || text.includes("unique") || text.includes("profiles_username")) {
+    return "Ese username ya está ocupado. Prueba con otro.";
+  }
+  if (text.includes("row-level security") || text.includes("permission")) {
+    return "No pudimos guardar por permisos de perfil. Revisa la sesión e intenta nuevamente.";
+  }
+  if (text.includes("column") || text.includes("schema cache")) {
+    return "Falta actualizar las columnas de perfil en Supabase. Ejecuta el SQL de fix.";
+  }
+  return "No pudimos guardar tu perfil. Intenta nuevamente.";
+}
+
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> {
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise<T>((_, reject) => {
+      window.setTimeout(() => reject(new Error("profile_save_timeout")), timeoutMs);
+    })
+  ]);
 }

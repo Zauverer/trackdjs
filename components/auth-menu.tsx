@@ -21,7 +21,7 @@ export function AuthMenu() {
   }
 
   const label = profile?.username ? `@${profile.username}` : user.email ?? "Mi Track";
-  const avatarName = profile?.display_name ?? profile?.username ?? user.email ?? "TrackDJs";
+  const avatarName = profile?.full_name ?? profile?.display_name ?? profile?.username ?? user.email ?? "TrackDJs";
 
   return (
     <div className="flex items-center gap-2">

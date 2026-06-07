@@ -36,7 +36,7 @@ export async function ensureProfile(supabase: SupabaseClient, user: User) {
     id: user.id,
     email,
     username,
-    display_name: existing?.display_name ?? displayName,
+    full_name: existing?.full_name ?? existing?.display_name ?? displayName,
     avatar_url: existing?.avatar_url ?? avatarUrl,
     updated_at: new Date().toISOString()
   };

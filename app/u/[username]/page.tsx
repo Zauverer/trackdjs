@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Share2 } from "lucide-react";
 import { BadgeCard } from "@/components/badge-card";
 import { ShareCard } from "@/components/share-card";
@@ -26,7 +25,9 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       .eq("username", username.toLowerCase())
       .maybeSingle();
 
-    if (!profile) notFound();
+    if (!profile) {
+      return <PublicProfileMissing username={username} />;
+    }
 
     const { count: seenCount } = await supabase!
       .from("user_seen_djs")
@@ -42,7 +43,7 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
     return (
       <PublicProfileShell
         username={profile.username ?? username}
-        name={profile.display_name ?? profile.username ?? username}
+        name={profile.full_name ?? profile.display_name ?? profile.username ?? username}
         city={profile.city}
         bio={profile.bio}
         social={{
@@ -75,6 +76,21 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       seenCount={getDJs().slice(0, 6).length}
       attendedCount={getEvents().slice(0, 3).length}
     />
+  );
+}
+
+function PublicProfileMissing({ username }: { username: string }) {
+  return (
+    <div className="min-h-screen px-4 py-6">
+      <main className="mx-auto max-w-2xl">
+        <section className="glass rounded-lg p-6">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Perfil público</p>
+          <h1 className="mt-3 text-4xl font-black text-white">@{username} no está disponible</h1>
+          <p className="mt-3 text-muted">Ese perfil todavía no existe o cambió de username. Vuelve a TrackDJs para seguir explorando la escena.</p>
+          <Link href="/app" className="mt-6 inline-flex rounded-md bg-white px-4 py-3 text-sm font-black text-void">Volver al radar</Link>
+        </section>
+      </main>
+    </div>
   );
 }
 

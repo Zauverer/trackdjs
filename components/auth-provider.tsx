@@ -31,7 +31,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    if (error) {
+      console.error("Profile load error", error);
+      setProfile(null);
+      return;
+    }
     setProfile(data ?? null);
   }, [supabase]);
 
@@ -48,17 +53,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true;
 
     supabase.auth.getSession().then(async ({ data }) => {
-      if (!mounted) return;
-      setSession(data.session);
-      if (data.session?.user) {
-        try {
-          await ensureProfile(supabase, data.session.user);
-        } catch {
-          // The callback route also retries profile creation after Magic Link.
+      try {
+        if (!mounted) return;
+        setSession(data.session);
+        if (data.session?.user) {
+          try {
+            await ensureProfile(supabase, data.session.user);
+          } catch (error) {
+            console.error("Profile setup error", error);
+            // The callback route also retries profile creation after Magic Link.
+          }
         }
+        await loadProfile(data.session?.user ?? null);
+      } catch (error) {
+        console.error("Session load error", error);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      await loadProfile(data.session?.user ?? null);
-      setLoading(false);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
