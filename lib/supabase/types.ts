@@ -6,6 +6,7 @@ export type Database = {
       profiles: {
         Row: {
           id: string;
+          email: string | null;
           username: string | null;
           display_name: string | null;
           avatar_url: string | null;
@@ -24,6 +25,7 @@ export type Database = {
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
+        Relationships: [];
       };
       djs: {
         Row: {
@@ -51,6 +53,7 @@ export type Database = {
         };
         Insert: Partial<Database["public"]["Tables"]["djs"]["Row"]> & { slug: string; artist_name: string };
         Update: Partial<Database["public"]["Tables"]["djs"]["Row"]>;
+        Relationships: [];
       };
       venues: {
         Row: {
@@ -75,6 +78,7 @@ export type Database = {
         };
         Insert: Partial<Database["public"]["Tables"]["venues"]["Row"]> & { name: string };
         Update: Partial<Database["public"]["Tables"]["venues"]["Row"]>;
+        Relationships: [];
       };
       producers: {
         Row: {
@@ -96,6 +100,7 @@ export type Database = {
         };
         Insert: Partial<Database["public"]["Tables"]["producers"]["Row"]> & { name: string };
         Update: Partial<Database["public"]["Tables"]["producers"]["Row"]>;
+        Relationships: [];
       };
       events: {
         Row: {
@@ -122,12 +127,37 @@ export type Database = {
         };
         Insert: Partial<Database["public"]["Tables"]["events"]["Row"]> & { slug: string; name: string; starts_at: string };
         Update: Partial<Database["public"]["Tables"]["events"]["Row"]>;
+        Relationships: [];
       };
-      [_: string]: {
-        Row: Record<string, unknown>;
-        Insert: Record<string, unknown>;
-        Update: Record<string, unknown>;
+      user_seen_djs: {
+        Row: {
+          id: string;
+          user_id: string;
+          dj_id: string;
+          seen_at: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["user_seen_djs"]["Row"]> & { user_id: string; dj_id: string };
+        Update: Partial<Database["public"]["Tables"]["user_seen_djs"]["Row"]>;
+        Relationships: [];
+      };
+      user_event_status: {
+        Row: {
+          id: string;
+          user_id: string;
+          event_id: string;
+          status: "interested" | "going" | "attended" | "skipped";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["user_event_status"]["Row"]> & { user_id: string; event_id: string; status: "interested" | "going" | "attended" | "skipped" };
+        Update: Partial<Database["public"]["Tables"]["user_event_status"]["Row"]>;
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };

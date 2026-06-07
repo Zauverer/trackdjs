@@ -16,11 +16,11 @@ export function AuthGateModal({ open, onClose }: { open: boolean; onClose: () =>
           </div>
           <button aria-label="Cerrar" onClick={onClose} className="rounded-md border border-white/10 p-2 text-white"><X size={18} /></button>
         </div>
-        <p className="mt-3 text-sm leading-6 text-muted">Puedes seguir usando la app sin cuenta. Cuando actives login, tus eventos, DJs vistos y badges quedarán guardados en tu perfil.</p>
+        <p className="mt-3 text-sm leading-6 text-muted">Puedes seguir usando la app sin cuenta. Si entras, tus eventos y DJs quedarán listos para guardarse en tu perfil.</p>
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
           <button onClick={onClose} className="rounded-md border border-white/10 px-3 py-2 text-sm font-bold text-white">Continuar</button>
-          <Link href="/app/signup" className="rounded-md bg-white px-3 py-2 text-center text-sm font-black text-void">Crear cuenta</Link>
-          <Link href="/app/login" className="rounded-md border border-cyan/30 px-3 py-2 text-center text-sm font-bold text-cyan">Iniciar sesión</Link>
+          <Link href="/signup" className="rounded-md bg-white px-3 py-2 text-center text-sm font-black text-void">Crear cuenta</Link>
+          <Link href="/login" className="rounded-md border border-cyan/30 px-3 py-2 text-center text-sm font-bold text-cyan">Iniciar sesión</Link>
         </div>
       </div>
     </div>

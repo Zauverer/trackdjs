@@ -1,6 +1,6 @@
 # Supabase Connection Checklist
 
-Sprint 5A.2 deja todo listo para conectar credenciales reales sin rediseñar la app.
+Sprint 7A conecta Supabase Auth con Email Magic Link sin rediseñar la app ni activar Google.
 
 ## 1. Crear Proyecto
 
@@ -22,8 +22,9 @@ En Supabase Dashboard > SQL Editor:
 Si el proyecto ya existe y `schema.sql` ya fue ejecutado antes de Sprint 6B, ejecutar además:
 
 4. Ejecutar `supabase/2026_06_contact_social_fields.sql`.
+5. Ejecutar `supabase/2026_06_auth_profile_policies.sql`.
 
-Esta migración agrega campos sociales/contacto con `alter table ... add column if not exists`; no borra datos y es segura para correr una vez o reintentar.
+Estas migraciones agregan campos sociales/contacto y el campo `email` en `profiles` con `alter table ... add column if not exists`; no borran datos y son seguras para correr una vez o reintentar.
 
 Los archivos son re-ejecutables en lo principal:
 
@@ -38,6 +39,7 @@ Crear `.env.local`:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://TU_PROYECTO.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=TU_ANON_KEY
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 No agregar service role al frontend.
@@ -52,6 +54,7 @@ Vercel > Project > Settings > Environment Variables:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SITE_URL`
 
 Solo cuando exista backend/server action:
 
@@ -59,7 +62,21 @@ Solo cuando exista backend/server action:
 
 Después de agregar variables, redeploy.
 
-## 5. Generar Tipos en Sprint 5B
+## 5. Supabase Auth Magic Link
+
+En Supabase Dashboard > Authentication:
+
+- Email provider: `Enabled`.
+- Site URL producción: `https://www.trackdjs.com`.
+- Redirect URLs permitidas:
+  - `https://www.trackdjs.com/auth/callback`
+  - `https://trackdjs.com/auth/callback`
+  - `https://trackdjs.vercel.app/auth/callback`
+  - `http://localhost:3000/auth/callback`
+
+El flujo actual usa `/login` y `/signup` con magic link por email. No activar Google todavía.
+
+## 6. Generar Tipos
 
 Instalar/login CLI:
 
@@ -81,21 +98,22 @@ npx supabase gen types typescript --linked --schema public > lib/supabase/databa
 
 Luego reemplazar el tipo manual de `lib/supabase/types.ts` por tipos generados o re-exportarlos desde `database.types.ts`.
 
-## 6. Pruebas Manuales con Supabase Activo
+## 7. Pruebas Manuales con Supabase Activo
 
 ### Login
 
-- Abrir `/app/login`.
-- Confirmar que ya no muestra mensaje de backend pendiente.
-- Probar email/password cuando se conecten acciones reales.
-- Confirmar que no bloquea navegación si falla.
+- Abrir `/login`.
+- Ingresar email válido.
+- Confirmar que Supabase envía el magic link.
+- Abrir el enlace y confirmar redirección a `/auth/callback`.
+- Confirmar llegada a `/app/profile`.
 
 ### Signup
 
-- Abrir `/app/signup`.
-- Confirmar UI visible.
-- Crear usuario cuando Auth esté conectado.
-- Confirmar profile creado.
+- Abrir `/signup`.
+- Ingresar email válido.
+- Confirmar que el perfil se crea o actualiza después del callback.
+- Confirmar que `/app/login` y `/app/signup` redirigen a las rutas nuevas.
 
 ### Admin
 
@@ -113,8 +131,9 @@ Luego reemplazar el tipo manual de `lib/supabase/types.ts` por tipos generados o
 - `/app/producers/[slug]` debe mostrar correo, teléfono, web e Instagram/TikTok cuando existan.
 - `/app/venues/[slug]` debe mostrar dirección, capacidad, contacto, redes y cómo llegar.
 - `/app/my-track` debe seguir usando localStorage hasta migración post-login.
+- `/u/[username]` debe leer el perfil público real si Supabase está configurado.
 
-## 7. Migración localStorage
+## 8. Migración localStorage
 
 Sprint 5A.2 incluye stubs:
 
@@ -129,7 +148,7 @@ Sprint 5B debe:
 - Insertar follows, seen DJs y event status con upserts.
 - Marcar migración completada para no duplicar.
 
-## 8. Validación
+## 9. Validación
 
 ```bash
 npm.cmd run lint

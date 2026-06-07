@@ -43,6 +43,7 @@ La versión actual funciona con fallback mock/localStorage. Si Supabase está co
 ```text
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SITE_URL
 ```
 
 Solo para backend seguro:
@@ -53,6 +54,12 @@ SUPABASE_SERVICE_ROLE_KEY
 
 Nunca usar `SUPABASE_SERVICE_ROLE_KEY` en frontend.
 
+Para producción, `NEXT_PUBLIC_SITE_URL` debe apuntar al dominio canónico que usará el magic link, por ejemplo:
+
+```text
+NEXT_PUBLIC_SITE_URL=https://www.trackdjs.com
+```
+
 ## Supabase antes de producción
 
 Si ya ejecutaste `schema.sql`, `rls.sql` y `seed.sql` antes de Sprint 6B, abre Supabase Dashboard > SQL Editor y ejecuta:
@@ -60,9 +67,24 @@ Si ya ejecutaste `schema.sql`, `rls.sql` y `seed.sql` antes de Sprint 6B, abre S
 ```sql
 -- archivo local
 supabase/2026_06_contact_social_fields.sql
+supabase/2026_06_auth_profile_policies.sql
 ```
 
-Esto agrega campos sociales/contacto a `profiles`, `djs`, `producers` y `venues` sin borrar datos.
+Esto agrega campos sociales/contacto a `profiles`, `djs`, `producers` y `venues`, además de `profiles.email`, sin borrar datos.
+
+## Supabase Auth
+
+TrackDJs usa Email Magic Link. En Supabase Dashboard > Authentication:
+
+- Email provider: enabled.
+- Site URL: `https://www.trackdjs.com`.
+- Redirect URLs:
+  - `https://www.trackdjs.com/auth/callback`
+  - `https://trackdjs.com/auth/callback`
+  - `https://trackdjs.vercel.app/auth/callback`
+  - `http://localhost:3000/auth/callback`
+
+No activar Google todavía. El callback vive en `/auth/callback`.
 
 ## Comandos Windows
 
@@ -105,6 +127,9 @@ http://192.168.100.21:3000
 
 - `https://trackdjs.com` carga landing.
 - `https://www.trackdjs.com` redirige correctamente al dominio canónico.
+- `/login` envía magic link por email.
+- `/signup` envía magic link por email.
+- `/auth/callback` crea sesión y perfil.
 - `/app` carga.
 - `/app/events` carga mapa GPS.
 - `/app/upcoming` carga timeline.
@@ -119,6 +144,8 @@ http://192.168.100.21:3000
 
 - Abrir `/`.
 - Abrir `/app`.
+- Abrir `/login` y enviar magic link.
+- Abrir el enlace recibido y confirmar `/app/profile`.
 - Abrir `/app/events` y confirmar mapa GPS.
 - Pinchar un pin y abrir detalle de evento.
 - Abrir `/app/upcoming`.

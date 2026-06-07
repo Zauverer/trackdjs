@@ -11,6 +11,11 @@
 - Revisar `DEPLOYMENT.md`.
 - Revisar `RELEASE_NOTES.md`.
 - Si Supabase ya existe, ejecutar `supabase/2026_06_contact_social_fields.sql`.
+- Si Supabase ya existe, ejecutar `supabase/2026_06_auth_profile_policies.sql`.
+- Confirmar `NEXT_PUBLIC_SITE_URL` en local y Vercel.
+- Confirmar Email provider enabled en Supabase Auth.
+- Confirmar redirect URLs de `/auth/callback` en Supabase Auth.
+- Confirmar que Google Auth sigue desactivado.
 - Confirmar que Leaflet carga solo en cliente.
 - Confirmar que Vercel Analytics no requiere configuración adicional.
 
@@ -24,10 +29,15 @@
 - Configurar `www.trackdjs.com`.
 - Elegir dominio canónico.
 - Validar SSL.
+- Probar magic link en producción con `https://www.trackdjs.com/auth/callback`.
 
 ## Post-Deploy
 
 - Abrir landing desde celular.
+- Abrir `/login`, pedir magic link y entrar.
+- Abrir `/signup`, pedir magic link y entrar.
+- Confirmar que `/app/profile` muestra el perfil del usuario autenticado.
+- Confirmar que `/u/[username]` muestra perfil público.
 - Abrir `/app`.
 - Abrir `/app/events`.
 - Probar mapa y popups.
