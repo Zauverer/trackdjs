@@ -4,7 +4,7 @@ import type { Database } from "@/lib/supabase/types";
 
 type Client = SupabaseClient<Database>;
 
-export async function fetchRemoteTrackState(supabase: Client, user: User, fallback: TrackState): Promise<TrackState> {
+export async function fetchRemoteTrackState(supabase: Client, user: User): Promise<TrackState> {
   const [djMap, eventMap] = await Promise.all([fetchSlugMap(supabase, "djs"), fetchSlugMap(supabase, "events")]);
   const djById = invertMap(djMap);
   const eventById = invertMap(eventMap);
@@ -38,9 +38,9 @@ export async function fetchRemoteTrackState(supabase: Client, user: User, fallba
   });
 
   return {
-    followedDjs: next.followedDjs.length ? next.followedDjs : fallback.followedDjs,
-    seenDjs: next.seenDjs.length ? next.seenDjs : fallback.seenDjs,
-    wantToSeeDjs: next.wantToSeeDjs.length ? next.wantToSeeDjs : fallback.wantToSeeDjs,
+    followedDjs: next.followedDjs,
+    seenDjs: next.seenDjs,
+    wantToSeeDjs: next.wantToSeeDjs,
     savedEvents: unique([...next.savedEvents]),
     goingEvents: unique([...next.goingEvents]),
     interestedEvents: unique([...next.interestedEvents]),
@@ -50,57 +50,60 @@ export async function fetchRemoteTrackState(supabase: Client, user: User, fallba
 
 export async function setRemoteDjFollow(supabase: Client, user: User, djSlug: string, active: boolean) {
   const djId = await resolveId(supabase, "djs", djSlug);
-  if (!djId) return;
+  if (!djId) throw new Error(`DJ slug not found in Supabase: ${djSlug}`);
   if (active) {
-    await supabase.from("user_dj_follows").upsert({ user_id: user.id, dj_id: djId }, { onConflict: "user_id,dj_id" });
+    await assertMutation(supabase.from("user_dj_follows").upsert({ user_id: user.id, dj_id: djId }, { onConflict: "user_id,dj_id" }));
   } else {
-    await supabase.from("user_dj_follows").delete().eq("user_id", user.id).eq("dj_id", djId);
+    await assertMutation(supabase.from("user_dj_follows").delete().eq("user_id", user.id).eq("dj_id", djId));
   }
 }
 
 export async function setRemoteDjSeen(supabase: Client, user: User, djSlug: string, active: boolean, eventSlug?: string) {
   const [djId, eventId] = await Promise.all([resolveId(supabase, "djs", djSlug), eventSlug ? resolveId(supabase, "events", eventSlug) : Promise.resolve(null)]);
-  if (!djId) return;
+  if (!djId) throw new Error(`DJ slug not found in Supabase: ${djSlug}`);
   if (active) {
-    await supabase.from("user_seen_djs").upsert({
+    if (!eventId) {
+      await assertMutation(supabase.from("user_seen_djs").delete().eq("user_id", user.id).eq("dj_id", djId).is("event_id", null));
+    }
+    await assertMutation(supabase.from("user_seen_djs").upsert({
       user_id: user.id,
       dj_id: djId,
       event_id: eventId,
       seen_at: new Date().toISOString(),
       verification_status: "self_reported",
-    }, { onConflict: "user_id,dj_id,event_id" });
+    }, { onConflict: "user_id,dj_id,event_id" }));
   } else {
     let query = supabase.from("user_seen_djs").delete().eq("user_id", user.id).eq("dj_id", djId);
     query = eventId ? query.eq("event_id", eventId) : query.is("event_id", null);
-    await query;
+    await assertMutation(query);
   }
 }
 
 export async function setRemoteDjWishlist(supabase: Client, user: User, djSlug: string, active: boolean) {
   const djId = await resolveId(supabase, "djs", djSlug);
-  if (!djId) return;
+  if (!djId) throw new Error(`DJ slug not found in Supabase: ${djSlug}`);
   if (active) {
-    await supabase.from("user_dj_wishlist").upsert({ user_id: user.id, dj_id: djId }, { onConflict: "user_id,dj_id" });
+    await assertMutation(supabase.from("user_dj_wishlist").upsert({ user_id: user.id, dj_id: djId }, { onConflict: "user_id,dj_id" }));
   } else {
-    await supabase.from("user_dj_wishlist").delete().eq("user_id", user.id).eq("dj_id", djId);
+    await assertMutation(supabase.from("user_dj_wishlist").delete().eq("user_id", user.id).eq("dj_id", djId));
   }
 }
 
 export async function setRemoteEventStatus(supabase: Client, user: User, eventSlug: string, status: "interested" | "going" | "attended", active: boolean) {
   const eventId = await resolveId(supabase, "events", eventSlug);
-  if (!eventId) return;
+  if (!eventId) throw new Error(`Event slug not found in Supabase: ${eventSlug}`);
   if (active) {
-    await supabase.from("user_event_status").upsert({ user_id: user.id, event_id: eventId, status, updated_at: new Date().toISOString() }, { onConflict: "user_id,event_id" });
+    await assertMutation(supabase.from("user_event_status").upsert({ user_id: user.id, event_id: eventId, status, updated_at: new Date().toISOString() }, { onConflict: "user_id,event_id" }));
   } else {
-    await supabase.from("user_event_status").delete().eq("user_id", user.id).eq("event_id", eventId).eq("status", status);
+    await assertMutation(supabase.from("user_event_status").delete().eq("user_id", user.id).eq("event_id", eventId).eq("status", status));
   }
 }
 
 export async function setRemoteSetReminder(supabase: Client, user: User, reminderKey: string, active: boolean) {
   if (active) {
-    await supabase.from("set_reminders").upsert({ user_id: user.id, reminder_key: reminderKey }, { onConflict: "user_id,reminder_key" });
+    await assertMutation(supabase.from("set_reminders").upsert({ user_id: user.id, reminder_key: reminderKey }, { onConflict: "user_id,reminder_key" }));
   } else {
-    await supabase.from("set_reminders").delete().eq("user_id", user.id).eq("reminder_key", reminderKey);
+    await assertMutation(supabase.from("set_reminders").delete().eq("user_id", user.id).eq("reminder_key", reminderKey));
   }
 }
 
@@ -142,4 +145,9 @@ function mapIdsToSlugs(rows: Record<string, unknown>[], key: string, map: Map<st
 
 function unique(values: string[]) {
   return [...new Set(values)];
+}
+
+async function assertMutation(promise: PromiseLike<{ error: unknown }>) {
+  const { error } = await promise;
+  if (error) throw error;
 }

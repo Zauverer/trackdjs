@@ -82,7 +82,7 @@ export function useTrackState() {
     const hasLocalActivity = Object.values(localSnapshot).some((items) => items.length > 0);
 
     setRemoteLoading(true);
-    fetchRemoteTrackState(supabase as never, user, localSnapshot)
+    fetchRemoteTrackState(supabase as never, user)
       .then((remoteState) => {
         setState(remoteState);
         if (hasLocalActivity) setMigrationPrompt(true);
@@ -99,7 +99,7 @@ export function useTrackState() {
       detail: {
         onConfirm: async () => {
           await migrateLocalTrackToSupabase(supabase as never, user, readValue());
-          const remoteState = await fetchRemoteTrackState(supabase as never, user, readValue());
+          const remoteState = await fetchRemoteTrackState(supabase as never, user);
           setState(remoteState);
           setMigrationPrompt(false);
         },

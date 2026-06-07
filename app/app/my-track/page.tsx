@@ -11,6 +11,7 @@ import { PageViewTracker } from "@/components/page-view-tracker";
 import { ShareCard } from "@/components/share-card";
 import { SocialLinks } from "@/components/social-links";
 import { StatCard } from "@/components/stat-card";
+import { getUniqueCountryFlagsFromSeenDjs } from "@/lib/country-utils";
 import { getDJs, getEvents, getUsers } from "@/lib/data";
 import { useTrackState } from "@/lib/use-track-state";
 
@@ -24,6 +25,7 @@ export default function MyTrackPage() {
   const wantToSee = djs.filter((dj) => state.wantToSeeDjs.includes(dj.slug));
   const upcoming = events.filter((event) => state.goingEvents.includes(event.slug) || state.savedEvents.includes(event.slug));
   const attended = events.filter((event) => state.attendedEvents.includes(event.slug));
+  const countryFlags = getUniqueCountryFlagsFromSeenDjs(seen);
 
   return (
     <div className="space-y-8">
@@ -70,6 +72,12 @@ export default function MyTrackPage() {
             compact
           />
         </div>
+      </section>
+
+      <section className="glass rounded-lg p-5">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países donde viste DJs</p>
+        <p className="mt-3 text-3xl">{countryFlags.join(" ") || "🇨🇱"}</p>
+        <p className="mt-2 text-sm text-muted">Base visual para rankings por país en próximos sprints.</p>
       </section>
 
       <section>

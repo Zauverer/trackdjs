@@ -9,6 +9,7 @@ import { SocialLinks } from "@/components/social-links";
 import { StatCard } from "@/components/stat-card";
 import { UserAvatar } from "@/components/user-avatar";
 import { events } from "@/lib/data";
+import { countryNameToFlagEmoji } from "@/lib/country-utils";
 import { useTrackState } from "@/lib/use-track-state";
 import type { DJ } from "@/types";
 
@@ -18,6 +19,7 @@ export function DJProfileClient({ dj }: { dj: DJ }) {
   const past = events.filter((event) => event.lineup.includes(dj.slug) && event.date < "2026-06-06");
   const cities = [...new Set([...upcoming, ...past].map((event) => event.city))];
   const contactEnabled = dj.contact_enabled ?? dj.contactEnabled ?? false;
+  const flag = dj.flag ?? countryNameToFlagEmoji(dj.country);
 
   return (
     <div className="space-y-8">
@@ -27,7 +29,7 @@ export function DJProfileClient({ dj }: { dj: DJ }) {
           <div className="flex-1">
             <p className="text-sm font-black uppercase tracking-[0.2em] text-cyan">LinkedIn artístico</p>
             <h1 className="mt-2 text-4xl font-black text-white sm:text-5xl">{dj.name}</h1>
-            <p className="mt-2 flex flex-wrap items-center gap-2 text-muted"><Flag size={16} /> {dj.country} <MapPin size={16} /> Base: {dj.city}</p>
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-muted"><Flag size={16} /> {flag} {dj.country} <MapPin size={16} /> Base: {dj.city}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {dj.genres.map((genre) => <GenrePill key={genre} label={genre} />)}
             </div>

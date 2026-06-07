@@ -4,6 +4,7 @@ import { Brand } from "@/components/brand";
 import { BadgeCard } from "@/components/badge-card";
 import { EventCard } from "@/components/event-card";
 import { GenrePill } from "@/components/genre-pill";
+import { LandingAuthActions } from "@/components/landing-auth-actions";
 import { badges, djs, events } from "@/lib/data";
 import { contact } from "@/lib/contact";
 
@@ -20,14 +21,7 @@ export default function LandingPage() {
     <div className="min-h-screen overflow-hidden">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
         <Brand />
-        <div className="flex items-center gap-2">
-          <Link href="/login" className="rounded-md border border-white/10 px-4 py-2 text-sm font-bold text-white transition hover:border-cyan/50">
-            Entrar
-          </Link>
-          <Link href="/signup" className="rounded-md border border-white/10 bg-white px-4 py-2 text-sm font-black text-void transition hover:bg-cyan">
-            Crear cuenta
-          </Link>
-        </div>
+        <LandingAuthActions />
       </header>
 
       <main>

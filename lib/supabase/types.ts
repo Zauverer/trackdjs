@@ -196,7 +196,32 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      public_profile_seen_djs: {
+        Row: {
+          username: string | null;
+          dj_slug: string | null;
+          artist_name: string | null;
+          country: string | null;
+          city: string | null;
+          seen_at: string | null;
+          created_at: string | null;
+        };
+        Relationships: [];
+      };
+      public_profile_event_status: {
+        Row: {
+          username: string | null;
+          event_slug: string | null;
+          event_name: string | null;
+          city: string | null;
+          starts_at: string | null;
+          status: "interested" | "going" | "attended" | "saved" | null;
+          created_at: string | null;
+        };
+        Relationships: [];
+      };
+    };
     Functions: Record<string, never>;
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

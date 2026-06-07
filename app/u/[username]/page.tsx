@@ -6,6 +6,7 @@ import { ShareCard } from "@/components/share-card";
 import { SocialLinks, type SocialLinkSet } from "@/components/social-links";
 import { UserAvatar } from "@/components/user-avatar";
 import { getBadges, getDJs, getEvents, getUsers } from "@/lib/data";
+import { countryNameToFlagEmoji } from "@/lib/country-utils";
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -29,29 +30,20 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       return <PublicProfileMissing username={username} />;
     }
 
-    const { count: seenCount } = await supabase!
-      .from("user_seen_djs")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", profile.id);
-
-    const { count: attendedCount } = await supabase!
-      .from("user_event_status")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", profile.id)
-      .eq("status", "attended");
-
     const { data: seenRows } = await supabase!
-      .from("user_seen_djs")
-      .select("djs(slug, artist_name)")
-      .eq("user_id", profile.id)
+      .from("public_profile_seen_djs")
+      .select("*")
+      .eq("username", username.toLowerCase())
       .limit(6);
 
     const { data: attendedRows } = await supabase!
-      .from("user_event_status")
-      .select("events(slug, name)")
-      .eq("user_id", profile.id)
+      .from("public_profile_event_status")
+      .select("*")
+      .eq("username", username.toLowerCase())
       .eq("status", "attended")
       .limit(3);
+    const seenDjs = normalizeSeenRows(seenRows);
+    const attendedEvents = normalizeAttendedRows(attendedRows);
 
     return (
       <PublicProfileShell
@@ -66,10 +58,11 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
           spotify_playlist_url: profile.spotify_playlist_url ?? undefined,
           website_url: profile.website_url ?? undefined,
         }}
-        seenCount={seenCount ?? 0}
-        attendedCount={attendedCount ?? 0}
-        seenDjs={normalizeSeenRows(seenRows)}
-        attendedEvents={normalizeAttendedRows(attendedRows)}
+        seenCount={seenDjs.length}
+        attendedCount={attendedEvents.length}
+        seenDjs={seenDjs}
+        attendedEvents={attendedEvents}
+        countryFlags={unique(seenDjs.map((dj) => countryNameToFlagEmoji(dj.country)).filter(Boolean))}
       />
     );
   }
@@ -92,6 +85,7 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       attendedCount={getEvents().slice(0, 3).length}
       seenDjs={getDJs().slice(0, 6).map((dj) => ({ slug: dj.slug, name: dj.name }))}
       attendedEvents={getEvents().slice(0, 3).map((event) => ({ slug: event.slug, name: event.name, venue: event.venue }))}
+      countryFlags={["🇨🇱"]}
     />
   );
 }
@@ -120,7 +114,8 @@ function PublicProfileShell({
   seenCount,
   attendedCount,
   seenDjs,
-  attendedEvents
+  attendedEvents,
+  countryFlags
 }: {
   username: string;
   name: string;
@@ -129,8 +124,9 @@ function PublicProfileShell({
   social: SocialLinkSet;
   seenCount: number;
   attendedCount: number;
-  seenDjs: { slug: string; name: string }[];
+  seenDjs: { slug: string; name: string; country?: string | null }[];
   attendedEvents: { slug: string; name: string; venue?: string }[];
+  countryFlags: string[];
 }) {
   const badges = getBadges().slice(0, 4);
 
@@ -147,6 +143,10 @@ function PublicProfileShell({
               <p className="mt-3 max-w-2xl text-zinc-300">{bio ?? "DJs vistos, badges y eventos asistidos en TrackDJs."}</p>
               <div className="mt-4">
                 <SocialLinks links={social} compact />
+              </div>
+              <div className="mt-4">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países explorados</p>
+                <p className="mt-2 text-2xl">{countryFlags.length ? countryFlags.join(" ") : "🇨🇱"}</p>
               </div>
             </div>
             <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-void"><Share2 size={16} /> Compartir perfil</button>
@@ -182,22 +182,22 @@ function normalizeSeenRows(rows: unknown) {
   if (!Array.isArray(rows)) return [];
   return rows
     .map((row) => {
-      const record = row as { djs?: unknown };
-      const dj = Array.isArray(record.djs) ? record.djs[0] : record.djs;
-      const djRecord = dj as { slug?: unknown; artist_name?: unknown } | undefined;
-      return djRecord?.slug && djRecord?.artist_name ? { slug: String(djRecord.slug), name: String(djRecord.artist_name) } : null;
+      const record = row as { dj_slug?: unknown; artist_name?: unknown; country?: unknown };
+      return record.dj_slug && record.artist_name ? { slug: String(record.dj_slug), name: String(record.artist_name), country: record.country ? String(record.country) : null } : null;
     })
-    .filter(Boolean) as { slug: string; name: string }[];
+    .filter(Boolean) as { slug: string; name: string; country?: string | null }[];
 }
 
 function normalizeAttendedRows(rows: unknown) {
   if (!Array.isArray(rows)) return [];
   return rows
     .map((row) => {
-      const record = row as { events?: unknown };
-      const event = Array.isArray(record.events) ? record.events[0] : record.events;
-      const eventRecord = event as { slug?: unknown; name?: unknown } | undefined;
-      return eventRecord?.slug && eventRecord?.name ? { slug: String(eventRecord.slug), name: String(eventRecord.name) } : null;
+      const record = row as { event_slug?: unknown; event_name?: unknown; city?: unknown };
+      return record.event_slug && record.event_name ? { slug: String(record.event_slug), name: String(record.event_name), venue: record.city ? String(record.city) : undefined } : null;
     })
     .filter(Boolean) as { slug: string; name: string }[];
+}
+
+function unique(values: string[]) {
+  return [...new Set(values)];
 }

@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Edit3, Loader2, LogIn, MapPin, RefreshCw, Save } from "lucide-react";
+import { Bookmark, CalendarDays, Disc3, Edit3, Eye, Heart, Loader2, LogIn, LogOut, MapPin, RefreshCw, Save, Star } from "lucide-react";
 import { ActionButton } from "@/components/action-button";
+import { SectionHeader } from "@/components/section-header";
 import { SocialLinks } from "@/components/social-links";
+import { StatCard } from "@/components/stat-card";
 import { UserAvatar } from "@/components/user-avatar";
 import { useSession } from "@/components/auth-provider";
+import { DJCard } from "@/components/dj-card";
+import { EventCard } from "@/components/event-card";
+import { getDJs, getEvents } from "@/lib/data";
+import { getUniqueCountryFlagsFromSeenDjs } from "@/lib/country-utils";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useTrackState } from "@/lib/use-track-state";
 import {
   isValidUsernameSlug,
   normalizeInstagramUrl,
@@ -31,8 +38,10 @@ const fields = [
 ] as const;
 
 export default function ProfilePage() {
-  const { loading, error, user, profile, refreshProfile, retryAuth } = useSession();
+  const { loading, error, user, profile, refreshProfile, retryAuth, logout } = useSession();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const { state, stats, remoteLoading, isAuthenticated } = useTrackState();
+  const [tab, setTab] = useState<"summary" | "edit" | "activity" | "settings">("summary");
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -96,7 +105,7 @@ export default function ProfilePage() {
       };
 
       const { error } = await withTimeout(
-        supabase.from("profiles").upsert(payload, { onConflict: "id" }),
+        supabase.from("profiles").upsert([payload], { onConflict: "id" }),
         12000
       );
 
@@ -168,6 +177,15 @@ export default function ProfilePage() {
 
   const displayName = profile?.full_name ?? profile?.display_name ?? profile?.username ?? user.email ?? "TrackDJs";
   const username = profile?.username ?? "track";
+  const djs = getDJs();
+  const events = getEvents();
+  const seenDjs = djs.filter((dj) => state.seenDjs.includes(dj.slug));
+  const followedDjs = djs.filter((dj) => state.followedDjs.includes(dj.slug));
+  const wantToSeeDjs = djs.filter((dj) => state.wantToSeeDjs.includes(dj.slug));
+  const savedEvents = events.filter((event) => state.savedEvents.includes(event.slug));
+  const goingEvents = events.filter((event) => state.goingEvents.includes(event.slug));
+  const attendedEvents = events.filter((event) => state.attendedEvents.includes(event.slug));
+  const countryFlags = getUniqueCountryFlagsFromSeenDjs(seenDjs);
 
   return (
     <div className="space-y-8">
@@ -192,11 +210,63 @@ export default function ProfilePage() {
               />
             </div>
           </div>
-          <ActionButton icon={<Edit3 size={16} />}>Editando perfil</ActionButton>
+          <ActionButton onClick={() => setTab("edit")} icon={<Edit3 size={16} />}>Editar perfil</ActionButton>
         </div>
       </section>
 
-      <form onSubmit={onSubmit} className="glass grid gap-4 rounded-lg p-5 md:grid-cols-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {[
+          ["summary", "Resumen"],
+          ["edit", "Editar perfil"],
+          ["activity", "Actividad"],
+          ["settings", "Configuración"]
+        ].map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setTab(key as typeof tab)}
+            className={`shrink-0 rounded-md border px-4 py-2 text-sm font-black ${tab === key ? "border-cyan/50 bg-cyan/10 text-cyan" : "border-white/10 text-muted hover:text-white"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "summary" ? (
+        <section className="space-y-6">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+            <StatCard label="DJs vistos" value={stats.seenDjs} icon={<Eye size={18} />} />
+            <StatCard label="Eventos guardados" value={stats.savedEvents} icon={<Bookmark size={18} />} />
+            <StatCard label="Voy" value={stats.goingEvents} icon={<CalendarDays size={18} />} />
+            <StatCard label="Asistidos" value={stats.attendedEvents} icon={<Disc3 size={18} />} />
+            <StatCard label="Siguiendo" value={stats.followedDjs} icon={<Heart size={18} />} />
+            <StatCard label="Quiero ver" value={state.wantToSeeDjs.length} icon={<Star size={18} />} />
+          </div>
+          <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+            <div className="glass rounded-lg p-5">
+              <SectionHeader title="Panel personal" description={remoteLoading ? "Sincronizando actividad..." : isAuthenticated ? "Tus acciones están conectadas a Supabase." : "Modo invitado con localStorage."} />
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link href={`/u/${username}`} className="rounded-md bg-white px-4 py-3 text-sm font-black text-void">Ver perfil público</Link>
+                <Link href="/app/my-track" className="rounded-md border border-cyan/30 px-4 py-3 text-sm font-bold text-cyan">Mi Track</Link>
+                <button onClick={() => setTab("edit")} className="rounded-md border border-white/10 px-4 py-3 text-sm font-bold text-white">Editar perfil</button>
+              </div>
+              <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países donde viste DJs</p>
+                <p className="mt-3 text-3xl">{countryFlags.join(" ") || "🇨🇱"}</p>
+              </div>
+            </div>
+            <div className="glass rounded-lg p-5">
+              <h2 className="text-xl font-black text-white">Acciones recientes</h2>
+              <div className="mt-4 space-y-3 text-sm text-zinc-300">
+                <p>{seenDjs[0] ? `Viste a ${seenDjs[0].name}` : "Marca tu primer DJ visto."}</p>
+                <p>{goingEvents[0] ? `Vas a ${goingEvents[0].name}` : "Marca un evento como Voy."}</p>
+                <p>{savedEvents[0] ? `Guardaste ${savedEvents[0].name}` : "Guarda una fecha en tu radar."}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {tab === "edit" ? <form onSubmit={onSubmit} className="glass grid gap-4 rounded-lg p-5 md:grid-cols-2">
         <div className="md:col-span-2">
           <h2 className="text-2xl font-black text-white">Datos reales de tu perfil</h2>
           <p className="mt-2 text-sm text-muted">Estos datos se guardan en Supabase y alimentan tu perfil público.</p>
@@ -222,7 +292,31 @@ export default function ProfilePage() {
             </span>
           ) : null}
         </div>
-      </form>
+      </form> : null}
+
+      {tab === "activity" ? (
+        <section className="space-y-6">
+          <SectionHeader title="Actividad" description="Resumen de tus DJs, wishlist y eventos." />
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {seenDjs.slice(0, 3).map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}
+            {followedDjs.slice(0, 3).map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}
+            {wantToSeeDjs.slice(0, 3).map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {[...savedEvents, ...goingEvents, ...attendedEvents].slice(0, 6).map((event, index) => <EventCard key={`${event.slug}-${index}`} event={event} />)}
+          </div>
+        </section>
+      ) : null}
+
+      {tab === "settings" ? (
+        <section className="glass rounded-lg p-5">
+          <h2 className="text-2xl font-black text-white">Configuración</h2>
+          <p className="mt-2 text-sm text-muted">Controles básicos de cuenta para esta beta.</p>
+          <button onClick={logout} className="mt-5 inline-flex items-center gap-2 rounded-md border border-pulse/30 px-4 py-3 text-sm font-black text-pulse">
+            <LogOut size={16} /> Cerrar sesión
+          </button>
+        </section>
+      ) : null}
     </div>
   );
 }

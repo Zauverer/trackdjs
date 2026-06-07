@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { AudioLines } from "lucide-react";
 
-export function Brand() {
+export function Brand({ href = "/" }: { href?: string }) {
   return (
-    <Link href="/" className="flex items-center gap-2" aria-label="TrackDJs home">
+    <Link href={href} className="flex items-center gap-2" aria-label="TrackDJs home">
       <span className="grid h-9 w-9 place-items-center rounded-md bg-white text-void shadow-glow">
         <AudioLines size={19} />
       </span>

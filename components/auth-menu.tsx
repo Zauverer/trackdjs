@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, UserRound } from "lucide-react";
+import { Disc3, LogOut, UserRound } from "lucide-react";
 import { useSession } from "@/components/auth-provider";
 import { UserAvatar } from "@/components/user-avatar";
 
@@ -28,6 +28,9 @@ export function AuthMenu() {
       <Link href="/app/profile" className="hidden items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-2 py-1.5 text-sm font-bold text-white hover:border-cyan/40 sm:flex">
         <UserAvatar name={avatarName} size="sm" />
         <span className="max-w-32 truncate">{label}</span>
+      </Link>
+      <Link href="/app/my-track" aria-label="Mi Track" className="grid h-10 w-10 place-items-center rounded-md border border-white/10 text-muted hover:border-cyan/40 hover:text-white">
+        <Disc3 size={17} />
       </Link>
       <Link href="/app/profile" aria-label="Perfil" className="grid h-10 w-10 place-items-center rounded-md border border-white/10 text-white sm:hidden">
         <UserRound size={18} />
