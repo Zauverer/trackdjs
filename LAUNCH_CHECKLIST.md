@@ -52,6 +52,13 @@
 - Guardar evento.
 - Marcar `Voy`.
 - Revisar `/app/my-track`.
+- Revisar `/app/my-track` y confirmar que aparece el Medal Rack de DJs vistos.
+- Abrir `/u/[username]` con sesión iniciada y confirmar botones: `Editar mi perfil`, `Volver a mi perfil`, `Ver Mi Track`.
+- Abrir `/u/[username]` en incógnito/cerrado de sesión y confirmar que se ve como perfil público.
+- Probar migración localStorage: elegir `Después` y confirmar que no reaparece por 24 horas para el mismo payload.
+- Probar migración localStorage: elegir `No guardar` y confirmar que no reaparece para el mismo payload.
+- Probar migración localStorage: elegir `Guardar` y confirmar mensaje `Actividad guardada en tu cuenta`.
+- Abrir `/app/debug/user-actions` con sesión iniciada y revisar follows, vistos, wishlist, eventos y estado de migración.
 - Revisar consola sin errores.
 - Probar performance básica en Lighthouse.
 - Compartir link con 5 usuarios beta.

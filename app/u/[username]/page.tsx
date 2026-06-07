@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Share2 } from "lucide-react";
+import { AuthMenu } from "@/components/auth-menu";
 import { BadgeCard } from "@/components/badge-card";
+import { Brand } from "@/components/brand";
+import { PublicProfileActions } from "@/components/public-profile-actions";
 import { ShareCard } from "@/components/share-card";
+import { SeenDJMedalRack } from "@/components/seen-dj-medal-rack";
 import { SocialLinks, type SocialLinkSet } from "@/components/social-links";
 import { UserAvatar } from "@/components/user-avatar";
 import { getBadges, getDJs, getEvents, getUsers } from "@/lib/data";
-import { countryNameToFlagEmoji } from "@/lib/country-utils";
+import { getUniqueCountryBadgesFromSeenActivity } from "@/lib/country-utils";
+import { buildSeenDJActivityFromPublicRows, buildSeenDJActivityFromTrackState, type SeenDJActivity } from "@/lib/seen-dj-activity";
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -34,7 +38,7 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       .from("public_profile_seen_djs")
       .select("*")
       .eq("username", username.toLowerCase())
-      .limit(6);
+      .limit(24);
 
     const { data: attendedRows } = await supabase!
       .from("public_profile_event_status")
@@ -42,8 +46,9 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       .eq("username", username.toLowerCase())
       .eq("status", "attended")
       .limit(3);
-    const seenDjs = normalizeSeenRows(seenRows);
+    const seenActivity = buildSeenDJActivityFromPublicRows(seenRows);
     const attendedEvents = normalizeAttendedRows(attendedRows);
+    const countryBadges = getUniqueCountryBadgesFromSeenActivity(seenActivity);
 
     return (
       <PublicProfileShell
@@ -58,16 +63,25 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
           spotify_playlist_url: profile.spotify_playlist_url ?? undefined,
           website_url: profile.website_url ?? undefined,
         }}
-        seenCount={seenDjs.length}
+        seenCount={seenActivity.length}
         attendedCount={attendedEvents.length}
-        seenDjs={seenDjs}
+        seenActivity={seenActivity}
         attendedEvents={attendedEvents}
-        countryFlags={unique(seenDjs.map((dj) => countryNameToFlagEmoji(dj.country)).filter(Boolean))}
+        countryBadges={countryBadges}
       />
     );
   }
 
   const user = getUsers().find((item) => (item.username ?? item.alias).toLowerCase() === username.toLowerCase()) ?? getUsers()[0];
+  const fallbackSeenActivity = buildSeenDJActivityFromTrackState({
+    followedDjs: [],
+    seenDjs: getDJs().slice(0, 6).map((dj) => dj.slug),
+    wantToSeeDjs: [],
+    savedEvents: [],
+    goingEvents: [],
+    interestedEvents: [],
+    attendedEvents: getEvents().slice(0, 3).map((event) => event.slug)
+  });
   return (
     <PublicProfileShell
       username={user.username ?? user.alias}
@@ -83,9 +97,9 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       }}
       seenCount={getDJs().slice(0, 6).length}
       attendedCount={getEvents().slice(0, 3).length}
-      seenDjs={getDJs().slice(0, 6).map((dj) => ({ slug: dj.slug, name: dj.name }))}
+      seenActivity={fallbackSeenActivity}
       attendedEvents={getEvents().slice(0, 3).map((event) => ({ slug: event.slug, name: event.name, venue: event.venue }))}
-      countryFlags={["🇨🇱"]}
+      countryBadges={getUniqueCountryBadgesFromSeenActivity(fallbackSeenActivity)}
     />
   );
 }
@@ -113,9 +127,9 @@ function PublicProfileShell({
   social,
   seenCount,
   attendedCount,
-  seenDjs,
+  seenActivity,
   attendedEvents,
-  countryFlags
+  countryBadges
 }: {
   username: string;
   name: string;
@@ -124,15 +138,19 @@ function PublicProfileShell({
   social: SocialLinkSet;
   seenCount: number;
   attendedCount: number;
-  seenDjs: { slug: string; name: string; country?: string | null }[];
+  seenActivity: SeenDJActivity[];
   attendedEvents: { slug: string; name: string; venue?: string }[];
-  countryFlags: string[];
+  countryBadges: string[];
 }) {
   const badges = getBadges().slice(0, 4);
 
   return (
     <div className="min-h-screen px-4 py-6">
       <main className="mx-auto max-w-5xl space-y-6">
+        <header className="flex items-center justify-between gap-4">
+          <Brand href="/app" />
+          <AuthMenu />
+        </header>
         <section className="glass rounded-lg p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <UserAvatar name={name} size="lg" />
@@ -146,10 +164,10 @@ function PublicProfileShell({
               </div>
               <div className="mt-4">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países explorados</p>
-                <p className="mt-2 text-2xl">{countryFlags.length ? countryFlags.join(" ") : "🇨🇱"}</p>
+                <p className="mt-2 text-2xl">{countryBadges.length ? countryBadges.join(" · ") : "🇨🇱 CL"}</p>
               </div>
             </div>
-            <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-void"><Share2 size={16} /> Compartir perfil</button>
+            <PublicProfileActions username={username} />
           </div>
         </section>
 
@@ -157,8 +175,8 @@ function PublicProfileShell({
           <div className="space-y-6">
             <div className="glass rounded-lg p-4">
               <h2 className="text-2xl font-black text-white">DJs vistos</h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {seenDjs.length ? seenDjs.map((dj) => <Link key={dj.slug} href={`/app/djs/${dj.slug}`} className="rounded-full border border-white/10 px-3 py-2 text-sm font-bold text-zinc-200">{dj.name}</Link>) : <p className="text-sm text-muted">Todavía no hay DJs públicos.</p>}
+              <div className="mt-3">
+                <SeenDJMedalRack activity={seenActivity} compact />
               </div>
             </div>
             <div className="glass rounded-lg p-4">
@@ -178,16 +196,6 @@ function PublicProfileShell({
   );
 }
 
-function normalizeSeenRows(rows: unknown) {
-  if (!Array.isArray(rows)) return [];
-  return rows
-    .map((row) => {
-      const record = row as { dj_slug?: unknown; artist_name?: unknown; country?: unknown };
-      return record.dj_slug && record.artist_name ? { slug: String(record.dj_slug), name: String(record.artist_name), country: record.country ? String(record.country) : null } : null;
-    })
-    .filter(Boolean) as { slug: string; name: string; country?: string | null }[];
-}
-
 function normalizeAttendedRows(rows: unknown) {
   if (!Array.isArray(rows)) return [];
   return rows
@@ -196,8 +204,4 @@ function normalizeAttendedRows(rows: unknown) {
       return record.event_slug && record.event_name ? { slug: String(record.event_slug), name: String(record.event_name), venue: record.city ? String(record.city) : undefined } : null;
     })
     .filter(Boolean) as { slug: string; name: string }[];
-}
-
-function unique(values: string[]) {
-  return [...new Set(values)];
 }

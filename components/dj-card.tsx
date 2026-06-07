@@ -6,12 +6,14 @@ import type { DJ } from "@/types";
 import { GenrePill } from "@/components/genre-pill";
 import { UserAvatar } from "@/components/user-avatar";
 import { ActionButton } from "@/components/action-button";
-import { useTrackState } from "@/lib/use-track-state";
+import { actionKey, useTrackState } from "@/lib/use-track-state";
 
 export function DJCard({ dj, compact = false }: { dj: DJ; compact?: boolean }) {
-  const { state, actions } = useTrackState();
+  const { state, actions, isActionPending, actionError } = useTrackState();
   const followed = state.followedDjs.includes(dj.slug);
   const seen = state.seenDjs.includes(dj.slug);
+  const followPending = isActionPending(actionKey("dj_follow", dj.slug));
+  const seenPending = isActionPending(actionKey("dj_seen", dj.slug));
 
   return (
     <article className="glass rounded-lg p-4">
@@ -38,13 +40,14 @@ export function DJCard({ dj, compact = false }: { dj: DJ; compact?: boolean }) {
         </div>
       )}
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <ActionButton active={followed} onClick={() => actions.toggleFollow(dj.slug)} icon={followed ? <Check size={16} /> : <Plus size={16} />}>
+        <ActionButton active={followed} loading={followPending} onClick={() => actions.toggleFollow(dj.slug)} icon={followed ? <Check size={16} /> : <Plus size={16} />}>
           {followed ? "Siguiendo" : "Seguir"}
         </ActionButton>
-        <ActionButton active={seen} onClick={() => actions.toggleSeen(dj.slug)} icon={<Eye size={16} />}>
+        <ActionButton active={seen} loading={seenPending} onClick={() => actions.toggleSeen(dj.slug)} icon={<Eye size={16} />}>
           {seen ? "Visto" : "Lo vi"}
         </ActionButton>
       </div>
+      {actionError ? <p className="mt-3 text-xs font-bold text-pulse">{actionError}</p> : null}
     </article>
   );
 }

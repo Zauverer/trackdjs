@@ -29,12 +29,30 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
       try {
         window.localStorage.setItem(key, JSON.stringify(nextValue));
+        window.dispatchEvent(new CustomEvent("trackdjs:local-storage", { detail: { key, value: nextValue } }));
       } catch {
         // Storage can be disabled in private or restricted browser contexts.
       }
     },
     [key]
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onExternalUpdate = (event: Event) => {
+      const detail = (event as CustomEvent<{ key?: string; value?: T }>).detail;
+      if (detail?.key === key && detail.value) setValue(detail.value);
+    };
+    const onNativeStorage = (event: StorageEvent) => {
+      if (event.key === key) setValue(readValue());
+    };
+    window.addEventListener("trackdjs:local-storage", onExternalUpdate);
+    window.addEventListener("storage", onNativeStorage);
+    return () => {
+      window.removeEventListener("trackdjs:local-storage", onExternalUpdate);
+      window.removeEventListener("storage", onNativeStorage);
+    };
+  }, [key, readValue]);
 
   return { value, setValue: persist, hydrated, readValue };
 }

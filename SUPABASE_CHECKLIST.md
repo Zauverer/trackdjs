@@ -23,6 +23,10 @@ Si el proyecto ya existe y `schema.sql` ya fue ejecutado antes de Sprint 6B, eje
 
 4. Ejecutar `supabase/2026_06_contact_social_fields.sql`.
 5. Ejecutar `supabase/2026_06_auth_profile_policies.sql`.
+6. Ejecutar `supabase/2026_06_user_dj_wishlist.sql`.
+7. Ejecutar `supabase/2026_06_set_reminders.sql`.
+8. Ejecutar `supabase/2026_06_user_actions_rls.sql`.
+9. Ejecutar `supabase/2026_06_seen_dj_medal_activity.sql`.
 
 Estas migraciones agregan campos sociales/contacto y el campo `email` en `profiles` con `alter table ... add column if not exists`; no borran datos y son seguras para correr una vez o reintentar.
 
@@ -132,23 +136,34 @@ Luego reemplazar el tipo manual de `lib/supabase/types.ts` por tipos generados o
 - `/app/venues/[slug]` debe mostrar dirección, capacidad, contacto, redes y cómo llegar.
 - `/app/my-track` debe seguir usando localStorage hasta migración post-login.
 - `/u/[username]` debe leer el perfil público real si Supabase está configurado.
+- `/u/[username]` debe mostrar Medal Rack desde `public_profile_seen_djs`.
+- `/app/debug/user-actions` debe mostrar solo actividad propia del usuario logueado.
 
 ## 8. Migración localStorage
 
-Sprint 5A.2 incluye stubs:
+Sprint 7B activa decisión persistente de migración:
 
-- `readLocalTrackSnapshot()`
-- `prepareLocalTrackMigration()`
-- `migrateLocalTrackToSupabaseDryRun()`
+- `trackdjs_migration_dismissed_at`
+- `trackdjs_migration_saved_at`
+- `trackdjs_migration_last_hash`
+- `trackdjs_migration_choice`
 
-Sprint 5B debe:
+Prueba esperada:
 
-- Ejecutar dry-run después de login.
-- Mapear slugs locales a UUIDs Supabase.
-- Insertar follows, seen DJs y event status con upserts.
-- Marcar migración completada para no duplicar.
+- Si eliges `Después`, el modal no reaparece por 24 horas para el mismo hash.
+- Si eliges `No guardar`, no reaparece para el mismo hash.
+- Si eliges `Guardar`, hace upsert de follows, DJs vistos, wishlist y estados de evento sin borrar localStorage hasta confirmar éxito.
+- Si cambia la actividad local, cambia el hash y puede volver a preguntar.
 
-## 9. Validación
+## 9. QA Medal Rack
+
+- Entrar con magic link.
+- Marcar `Lo vi` en un DJ.
+- Abrir `/app/my-track` y confirmar medalla con DJ, año, bandera/código y estado `autodeclarado`.
+- Abrir `/u/[username]` y confirmar que la medalla aparece pública.
+- Si hay `event_id` en `user_seen_djs`, la view debe mostrar `event_name` y `seen_year` desde `events.starts_at`.
+
+## 10. Validación
 
 ```bash
 npm.cmd run lint

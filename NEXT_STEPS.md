@@ -100,3 +100,15 @@ Mantener `Mi Track` como el corazón de la experiencia: cada acción debe enriqu
 - Ranking “más fan de este DJ”.
 - Evidencia futura por foto/metadatos para validar asistencia.
 - Badges por país, ciudad, festival, género y etapa de la noche.
+
+## Sprint 7C — Seed Sync + Trust Layer
+
+- Verificar que todos los slugs de DJs/eventos mock existen en Supabase.
+- Crear SQL incremental para sincronizar DJs, eventos, venues y lineups faltantes sin duplicar.
+- Generar tipos reales con Supabase CLI y reemplazar el tipo manual.
+- Revisar `user_seen_djs` con `event_id` para que las medallas muestren evento/año real.
+- Agregar estado visual de `verificado` solo cuando exista evidencia o validación futura.
+- Mantener `autodeclarado` como default para no inflar confianza.
+- Probar `/app/debug/user-actions` con usuario real antes y después de cada acción.
+- Medir latencia percibida de acciones y reducir consultas si aparecen nuevas duplicaciones.
+- Diseñar, sin implementar todavía, el flujo de evidencia futura para validar asistencia.

@@ -11,11 +11,11 @@ import { UserAvatar } from "@/components/user-avatar";
 import { EventFeedbackForm } from "@/components/producer-feedback";
 import { djs, users } from "@/lib/data";
 import { formatEventDate } from "@/lib/utils";
-import { useTrackState } from "@/lib/use-track-state";
+import { actionKey, useTrackState } from "@/lib/use-track-state";
 import type { Event } from "@/types";
 
 export function EventDetailClient({ event }: { event: Event }) {
-  const { state, actions } = useTrackState();
+  const { state, actions, isActionPending, actionError } = useTrackState();
   const lineup = event.lineup.map((slug) => djs.find((dj) => dj.slug === slug)).filter(Boolean);
   const attendees = event.attendees.map((id) => users.find((user) => user.id === id)).filter(Boolean);
 
@@ -42,12 +42,13 @@ export function EventDetailClient({ event }: { event: Event }) {
             </div>
             <p className="mt-5 leading-7 text-zinc-300">{event.description}</p>
             <div className="mt-5 flex flex-wrap gap-2">
-              <ActionButton active={state.interestedEvents.includes(event.slug)} onClick={() => actions.toggleInterestedEvent(event.slug)} icon={<Star size={16} />}>Me interesa</ActionButton>
-              <ActionButton active={state.goingEvents.includes(event.slug)} onClick={() => actions.toggleGoingEvent(event.slug)} icon={<Check size={16} />}>Voy</ActionButton>
-              <ActionButton active={state.attendedEvents.includes(event.slug)} onClick={() => actions.toggleAttendedEvent(event.slug)} icon={<Eye size={16} />}>Fui</ActionButton>
+              <ActionButton active={state.interestedEvents.includes(event.slug)} loading={isActionPending(actionKey("event_interested", event.slug))} onClick={() => actions.toggleInterestedEvent(event.slug)} icon={<Star size={16} />}>Me interesa</ActionButton>
+              <ActionButton active={state.goingEvents.includes(event.slug)} loading={isActionPending(actionKey("event_going", event.slug))} onClick={() => actions.toggleGoingEvent(event.slug)} icon={<Check size={16} />}>Voy</ActionButton>
+              <ActionButton active={state.attendedEvents.includes(event.slug)} loading={isActionPending(actionKey("event_attended", event.slug))} onClick={() => actions.toggleAttendedEvent(event.slug)} icon={<Eye size={16} />}>Fui</ActionButton>
               <ActionButton onClick={() => navigator.clipboard?.writeText(`Voy a ${event.name} en TrackDJs`)} icon={<Send size={16} />}>Compartir</ActionButton>
               <TicketButton event={event} />
             </div>
+            {actionError ? <p className="mt-3 text-sm font-bold text-pulse">{actionError}</p> : null}
           </div>
 
           <div>

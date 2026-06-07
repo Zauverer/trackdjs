@@ -7,12 +7,14 @@ import { DJCard } from "@/components/dj-card";
 import { EmptyState } from "@/components/empty-state";
 import { EventCard } from "@/components/event-card";
 import { SectionHeader } from "@/components/section-header";
+import { SeenDJMedalRack } from "@/components/seen-dj-medal-rack";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { ShareCard } from "@/components/share-card";
 import { SocialLinks } from "@/components/social-links";
 import { StatCard } from "@/components/stat-card";
-import { getUniqueCountryFlagsFromSeenDjs } from "@/lib/country-utils";
+import { getUniqueCountryBadgesFromSeenActivity } from "@/lib/country-utils";
 import { getDJs, getEvents, getUsers } from "@/lib/data";
+import { buildSeenDJActivityFromTrackState } from "@/lib/seen-dj-activity";
 import { useTrackState } from "@/lib/use-track-state";
 
 export default function MyTrackPage() {
@@ -25,7 +27,8 @@ export default function MyTrackPage() {
   const wantToSee = djs.filter((dj) => state.wantToSeeDjs.includes(dj.slug));
   const upcoming = events.filter((event) => state.goingEvents.includes(event.slug) || state.savedEvents.includes(event.slug));
   const attended = events.filter((event) => state.attendedEvents.includes(event.slug));
-  const countryFlags = getUniqueCountryFlagsFromSeenDjs(seen);
+  const seenActivity = buildSeenDJActivityFromTrackState(state);
+  const countryBadges = getUniqueCountryBadgesFromSeenActivity(seenActivity);
 
   return (
     <div className="space-y-8">
@@ -75,15 +78,15 @@ export default function MyTrackPage() {
       </section>
 
       <section className="glass rounded-lg p-5">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países donde viste DJs</p>
-        <p className="mt-3 text-3xl">{countryFlags.join(" ") || "🇨🇱"}</p>
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países explorados</p>
+        <p className="mt-3 text-3xl">{countryBadges.join(" · ") || "🇨🇱 CL"}</p>
         <p className="mt-2 text-sm text-muted">Base visual para rankings por país en próximos sprints.</p>
       </section>
 
       <section>
         <SectionHeader title="DJs que vi" description="Tu historial de cabina empieza con cada set marcado." action={<Link href="/app/djs" className="text-sm font-bold text-cyan">Sumar DJ</Link>} />
-        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {seen.length ? seen.map((dj) => <DJCard key={dj.slug} dj={dj} compact />) : <EmptyState title="Aun no marcaste DJs vistos." href="/app/djs" action="Explorar DJs" />}
+        <div className="mt-4">
+          {seen.length ? <SeenDJMedalRack activity={seenActivity} /> : <EmptyState title="Aun no marcaste DJs vistos." href="/app/djs" action="Explorar DJs" />}
         </div>
       </section>
 

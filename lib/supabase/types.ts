@@ -203,7 +203,13 @@ export type Database = {
           dj_slug: string | null;
           artist_name: string | null;
           country: string | null;
+          country_code_raw: string | null;
+          country_code: string | null;
           city: string | null;
+          event_slug: string | null;
+          event_name: string | null;
+          seen_year: number | null;
+          verification_status: string | null;
           seen_at: string | null;
           created_at: string | null;
         };

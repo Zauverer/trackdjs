@@ -8,12 +8,13 @@ import { formatEventDate } from "@/lib/utils";
 import { GenrePill } from "@/components/genre-pill";
 import { ActionButton } from "@/components/action-button";
 import { TicketButton } from "@/components/ticket-button";
-import { useTrackState } from "@/lib/use-track-state";
+import { actionKey, useTrackState } from "@/lib/use-track-state";
 
 export function EventCard({ event, featured = false }: { event: Event; featured?: boolean }) {
-  const { state, actions } = useTrackState();
+  const { state, actions, isActionPending, actionError } = useTrackState();
   const saved = state.savedEvents.includes(event.slug);
   const going = state.goingEvents.includes(event.slug);
+  const interested = state.interestedEvents.includes(event.slug);
   const lineup = event.lineup.map((slug) => djs.find((dj) => dj.slug === slug)?.name).filter(Boolean).slice(0, 3);
 
   return (
@@ -43,18 +44,19 @@ export function EventCard({ event, featured = false }: { event: Event; featured?
         )}
         <div className="mt-4 grid grid-cols-2 gap-2">
           <TicketButton event={event} />
-          <ActionButton active={saved} onClick={() => actions.toggleSavedEvent(event.slug)} icon={<Bookmark size={15} />} className="px-2">
+          <ActionButton active={saved} loading={isActionPending(actionKey("event_saved", event.slug))} onClick={() => actions.toggleSavedEvent(event.slug)} icon={<Bookmark size={15} />} className="px-2">
             {saved ? "Guardado" : "Guardar"}
           </ActionButton>
         </div>
         <div className="mt-2 grid grid-cols-2 gap-2">
-          <ActionButton active={going} onClick={() => actions.toggleGoingEvent(event.slug)} icon={going ? <Check size={15} /> : <Star size={15} />} className="px-2">
+          <ActionButton active={going} loading={isActionPending(actionKey("event_going", event.slug))} onClick={() => actions.toggleGoingEvent(event.slug)} icon={going ? <Check size={15} /> : <Star size={15} />} className="px-2">
             Voy
           </ActionButton>
-          <ActionButton active={state.interestedEvents.includes(event.slug)} onClick={() => actions.toggleInterestedEvent(event.slug)} className="px-2">
+          <ActionButton active={interested} loading={isActionPending(actionKey("event_interested", event.slug))} onClick={() => actions.toggleInterestedEvent(event.slug)} className="px-2">
             Interesa
           </ActionButton>
         </div>
+        {actionError ? <p className="mt-3 text-xs font-bold text-pulse">{actionError}</p> : null}
       </div>
     </article>
   );

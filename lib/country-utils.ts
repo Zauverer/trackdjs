@@ -1,16 +1,27 @@
 import type { DJ, Event } from "@/types";
+import type { SeenDJActivity } from "@/lib/seen-dj-activity";
 
 const countryToCode: Record<string, string> = {
   chile: "CL",
+  cl: "CL",
   belgium: "BE",
+  be: "BE",
   argentina: "AR",
+  ar: "AR",
   russia: "RU",
   germany: "DE",
+  de: "DE",
   switzerland: "CH",
   brazil: "BR",
+  br: "BR",
   spain: "ES",
+  us: "US",
+  usa: "US",
+  "united states": "US",
   ukraine: "UA",
   "united kingdom": "GB",
+  uk: "GB",
+  gb: "GB",
   romania: "RO",
 };
 
@@ -22,7 +33,19 @@ export function countryCodeToFlagEmoji(code?: string | null) {
 
 export function countryNameToFlagEmoji(country?: string | null) {
   if (!country) return "";
-  return countryCodeToFlagEmoji(countryToCode[country.toLowerCase()] ?? country);
+  return countryCodeToFlagEmoji(normalizeCountryCode(country));
+}
+
+export function normalizeCountryCode(country?: string | null) {
+  if (!country) return "";
+  const normalized = country.trim().toLowerCase();
+  if (normalized.length === 2) return normalized.toUpperCase();
+  return countryToCode[normalized] ?? "";
+}
+
+export function getCountryFlagLabel(country?: string | null, countryCode?: string | null) {
+  const code = normalizeCountryCode(countryCode) || normalizeCountryCode(country) || "CL";
+  return { code, flag: countryCodeToFlagEmoji(code) || "🇨🇱" };
 }
 
 export function getUniqueCountryFlagsFromSeenDjs(djs: Pick<DJ, "country">[]) {
@@ -33,6 +56,17 @@ export function getUniqueCountryFlagsFromSeenDjs(djs: Pick<DJ, "country">[]) {
 export function getUniqueCountryFlagsFromEvents(events: Pick<Event, "city">[]) {
   if (!events.length) return [];
   return unique(events.map(() => "🇨🇱"));
+}
+
+export function getUniqueCountryFlagsFromSeenActivity(activity: Pick<SeenDJActivity, "countryCode" | "country">[]) {
+  return unique(activity.map((item) => getCountryFlagLabel(item.country, item.countryCode).flag).filter(Boolean));
+}
+
+export function getUniqueCountryBadgesFromSeenActivity(activity: Pick<SeenDJActivity, "countryCode" | "country">[]) {
+  return unique(activity.map((item) => {
+    const { code, flag } = getCountryFlagLabel(item.country, item.countryCode);
+    return `${flag} ${code}`;
+  }));
 }
 
 function unique(values: string[]) {

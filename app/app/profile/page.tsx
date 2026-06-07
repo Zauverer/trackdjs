@@ -8,12 +8,14 @@ import { SectionHeader } from "@/components/section-header";
 import { SocialLinks } from "@/components/social-links";
 import { StatCard } from "@/components/stat-card";
 import { UserAvatar } from "@/components/user-avatar";
+import { SeenDJMedalRack } from "@/components/seen-dj-medal-rack";
 import { useSession } from "@/components/auth-provider";
 import { DJCard } from "@/components/dj-card";
 import { EventCard } from "@/components/event-card";
 import { getDJs, getEvents } from "@/lib/data";
-import { getUniqueCountryFlagsFromSeenDjs } from "@/lib/country-utils";
+import { getUniqueCountryBadgesFromSeenActivity } from "@/lib/country-utils";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { buildSeenDJActivityFromTrackState } from "@/lib/seen-dj-activity";
 import { useTrackState } from "@/lib/use-track-state";
 import {
   isValidUsernameSlug,
@@ -45,6 +47,12 @@ export default function ProfilePage() {
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  useEffect(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    if (requestedTab === "editar" || requestedTab === "edit") setTab("edit");
+    if (requestedTab === "actividad" || requestedTab === "activity") setTab("activity");
+  }, []);
 
   useEffect(() => {
     if (!profile) return;
@@ -185,7 +193,8 @@ export default function ProfilePage() {
   const savedEvents = events.filter((event) => state.savedEvents.includes(event.slug));
   const goingEvents = events.filter((event) => state.goingEvents.includes(event.slug));
   const attendedEvents = events.filter((event) => state.attendedEvents.includes(event.slug));
-  const countryFlags = getUniqueCountryFlagsFromSeenDjs(seenDjs);
+  const seenActivity = buildSeenDJActivityFromTrackState(state);
+  const countryBadges = getUniqueCountryBadgesFromSeenActivity(seenActivity);
 
   return (
     <div className="space-y-8">
@@ -217,8 +226,8 @@ export default function ProfilePage() {
       <div className="flex gap-2 overflow-x-auto pb-1">
         {[
           ["summary", "Resumen"],
-          ["edit", "Editar perfil"],
           ["activity", "Actividad"],
+          ["edit", "Editar perfil"],
           ["settings", "Configuración"]
         ].map(([key, label]) => (
           <button
@@ -250,8 +259,8 @@ export default function ProfilePage() {
                 <button onClick={() => setTab("edit")} className="rounded-md border border-white/10 px-4 py-3 text-sm font-bold text-white">Editar perfil</button>
               </div>
               <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países donde viste DJs</p>
-                <p className="mt-3 text-3xl">{countryFlags.join(" ") || "🇨🇱"}</p>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países explorados</p>
+                <p className="mt-3 text-3xl">{countryBadges.join(" · ") || "🇨🇱 CL"}</p>
               </div>
             </div>
             <div className="glass rounded-lg p-5">
@@ -261,6 +270,12 @@ export default function ProfilePage() {
                 <p>{goingEvents[0] ? `Vas a ${goingEvents[0].name}` : "Marca un evento como Voy."}</p>
                 <p>{savedEvents[0] ? `Guardaste ${savedEvents[0].name}` : "Guarda una fecha en tu radar."}</p>
               </div>
+            </div>
+          </div>
+          <div className="glass rounded-lg p-5">
+            <SectionHeader title="Medallas de DJs vistos" description="Tu colección pública de sets vistos en vivo." />
+            <div className="mt-4">
+              <SeenDJMedalRack activity={seenActivity} compact />
             </div>
           </div>
         </section>
@@ -297,8 +312,8 @@ export default function ProfilePage() {
       {tab === "activity" ? (
         <section className="space-y-6">
           <SectionHeader title="Actividad" description="Resumen de tus DJs, wishlist y eventos." />
+          <SeenDJMedalRack activity={seenActivity} />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {seenDjs.slice(0, 3).map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}
             {followedDjs.slice(0, 3).map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}
             {wantToSeeDjs.slice(0, 3).map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}
           </div>

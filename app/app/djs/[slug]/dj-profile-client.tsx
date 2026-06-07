@@ -10,11 +10,11 @@ import { StatCard } from "@/components/stat-card";
 import { UserAvatar } from "@/components/user-avatar";
 import { events } from "@/lib/data";
 import { countryNameToFlagEmoji } from "@/lib/country-utils";
-import { useTrackState } from "@/lib/use-track-state";
+import { actionKey, useTrackState } from "@/lib/use-track-state";
 import type { DJ } from "@/types";
 
 export function DJProfileClient({ dj }: { dj: DJ }) {
-  const { state, actions } = useTrackState();
+  const { state, actions, isActionPending, actionError } = useTrackState();
   const upcoming = events.filter((event) => event.lineup.includes(dj.slug) && event.date >= "2026-06-06");
   const past = events.filter((event) => event.lineup.includes(dj.slug) && event.date < "2026-06-06");
   const cities = [...new Set([...upcoming, ...past].map((event) => event.city))];
@@ -37,11 +37,12 @@ export function DJProfileClient({ dj }: { dj: DJ }) {
           </div>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
-          <ActionButton active={state.followedDjs.includes(dj.slug)} onClick={() => actions.toggleFollow(dj.slug)} icon={<Heart size={16} />}>Seguir</ActionButton>
-          <ActionButton active={state.seenDjs.includes(dj.slug)} onClick={() => actions.toggleSeen(dj.slug)} icon={<Eye size={16} />}>Lo vi</ActionButton>
-          <ActionButton active={state.wantToSeeDjs.includes(dj.slug)} onClick={() => actions.toggleWantToSee(dj.slug)} icon={<Star size={16} />}>Quiero verlo</ActionButton>
+          <ActionButton active={state.followedDjs.includes(dj.slug)} loading={isActionPending(actionKey("dj_follow", dj.slug))} onClick={() => actions.toggleFollow(dj.slug)} icon={<Heart size={16} />}>Seguir</ActionButton>
+          <ActionButton active={state.seenDjs.includes(dj.slug)} loading={isActionPending(actionKey("dj_seen", dj.slug))} onClick={() => actions.toggleSeen(dj.slug)} icon={<Eye size={16} />}>Lo vi</ActionButton>
+          <ActionButton active={state.wantToSeeDjs.includes(dj.slug)} loading={isActionPending(actionKey("dj_want", dj.slug))} onClick={() => actions.toggleWantToSee(dj.slug)} icon={<Star size={16} />}>Quiero verlo</ActionButton>
           {contactEnabled ? <ActionButton icon={<Mail size={16} />}>Contactar</ActionButton> : <span className="inline-flex min-h-10 items-center rounded-md border border-white/10 px-4 text-sm font-bold text-muted">Contacto no disponible</span>}
         </div>
+        {actionError ? <p className="mt-3 text-sm font-bold text-pulse">{actionError}</p> : null}
       </section>
 
       <section className="grid gap-3 md:grid-cols-4">

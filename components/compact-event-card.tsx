@@ -8,10 +8,10 @@ import { eventComuna, getEventLineupNames } from "@/lib/event-utils";
 import { GenrePill } from "@/components/genre-pill";
 import { TicketButton } from "@/components/ticket-button";
 import { ActionButton } from "@/components/action-button";
-import { useTrackState } from "@/lib/use-track-state";
+import { actionKey, useTrackState } from "@/lib/use-track-state";
 
 export function CompactEventCard({ event }: { event: Event }) {
-  const { state, actions } = useTrackState();
+  const { state, actions, isActionPending, actionError } = useTrackState();
   const saved = state.savedEvents.includes(event.slug);
   const going = state.goingEvents.includes(event.slug);
   const lineup = getEventLineupNames(event);
@@ -35,9 +35,10 @@ export function CompactEventCard({ event }: { event: Event }) {
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
         <TicketButton event={event} compact />
-        <ActionButton active={saved} onClick={() => actions.toggleSavedEvent(event.slug)} icon={<Bookmark size={14} />} className="min-h-10 px-2 text-xs">{saved ? "Guardado" : "Guardar"}</ActionButton>
-        <ActionButton active={going} onClick={() => actions.toggleGoingEvent(event.slug)} icon={going ? <Check size={14} /> : <Star size={14} />} className="min-h-10 px-2 text-xs">Voy</ActionButton>
+        <ActionButton active={saved} loading={isActionPending(actionKey("event_saved", event.slug))} onClick={() => actions.toggleSavedEvent(event.slug)} icon={<Bookmark size={14} />} className="min-h-10 px-2 text-xs">{saved ? "Guardado" : "Guardar"}</ActionButton>
+        <ActionButton active={going} loading={isActionPending(actionKey("event_going", event.slug))} onClick={() => actions.toggleGoingEvent(event.slug)} icon={going ? <Check size={14} /> : <Star size={14} />} className="min-h-10 px-2 text-xs">Voy</ActionButton>
       </div>
+      {actionError ? <p className="mt-2 text-xs font-bold text-pulse">{actionError}</p> : null}
     </article>
   );
 }
