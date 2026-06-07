@@ -4,6 +4,9 @@ import { getSupabaseEnv } from "@/lib/supabase/is-configured";
 import type { Database } from "@/lib/supabase/types";
 
 export async function middleware(request: NextRequest) {
+  const canonicalResponse = redirectToCanonicalHost(request);
+  if (canonicalResponse) return canonicalResponse;
+
   const env = getSupabaseEnv();
   if (!env) return NextResponse.next({ request });
 
@@ -24,6 +27,16 @@ export async function middleware(request: NextRequest) {
 
   await supabase.auth.getUser();
   return response;
+}
+
+function redirectToCanonicalHost(request: NextRequest) {
+  const host = request.nextUrl.hostname.toLowerCase();
+  if (host !== "trackdjs.com") return null;
+
+  const url = request.nextUrl.clone();
+  url.protocol = "https:";
+  url.hostname = "www.trackdjs.com";
+  return NextResponse.redirect(url, 308);
 }
 
 export const config = {

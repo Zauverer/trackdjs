@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Edit3, Loader2, MapPin, Save } from "lucide-react";
+import { Edit3, Loader2, LogIn, MapPin, RefreshCw, Save } from "lucide-react";
 import { ActionButton } from "@/components/action-button";
 import { SocialLinks } from "@/components/social-links";
 import { UserAvatar } from "@/components/user-avatar";
@@ -23,7 +23,7 @@ const fields = [
 ] as const;
 
 export default function ProfilePage() {
-  const { loading, user, profile, refreshProfile } = useSession();
+  const { loading, error, user, profile, refreshProfile, retryAuth } = useSession();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -100,20 +100,46 @@ export default function ProfilePage() {
   }
 
   if (loading) {
-    return <div className="glass rounded-lg p-6 text-muted">Cargando perfil...</div>;
+    return (
+      <ProfileStateCard
+        title={user ? "Cargando perfil..." : "Cargando sesión..."}
+        description="Estamos validando tu sesión de TrackDJs con Supabase."
+        loading
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <ProfileStateCard
+        title="Error al cargar perfil"
+        description={error}
+        retryAuth={retryAuth}
+      />
+    );
   }
 
   if (!user) {
     return (
       <section className="glass rounded-lg p-6">
         <p className="text-sm font-black uppercase tracking-[0.2em] text-cyan">Perfil</p>
-        <h1 className="mt-3 text-4xl font-black text-white">Crea tu cuenta para guardar tu Track.</h1>
+        <h1 className="mt-3 text-4xl font-black text-white">Entra para editar tu perfil.</h1>
         <p className="mt-3 max-w-2xl leading-7 text-muted">Puedes explorar sin cuenta, pero tu perfil público, redes y actividad persistente viven en tu cuenta TrackDJs.</p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/signup" className="rounded-md bg-white px-4 py-3 text-sm font-black text-void">Crear cuenta</Link>
-          <Link href="/login" className="rounded-md border border-cyan/30 px-4 py-3 text-sm font-bold text-cyan">Entrar</Link>
+          <Link href="/login" className="rounded-md bg-white px-4 py-3 text-sm font-black text-void">Entrar</Link>
+          <Link href="/app" className="rounded-md border border-cyan/30 px-4 py-3 text-sm font-bold text-cyan">Explorar TrackDJs</Link>
         </div>
       </section>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <ProfileStateCard
+        title="Error al cargar perfil"
+        description="Tu sesión existe, pero no pudimos crear o leer tu perfil. Reintenta o vuelve a entrar."
+        retryAuth={retryAuth}
+      />
     );
   }
 
@@ -175,6 +201,42 @@ export default function ProfilePage() {
         </div>
       </form>
     </div>
+  );
+}
+
+function ProfileStateCard({
+  title,
+  description,
+  loading,
+  retryAuth
+}: {
+  title: string;
+  description: string;
+  loading?: boolean;
+  retryAuth?: () => void;
+}) {
+  return (
+    <section className="glass rounded-lg p-6">
+      <p className="text-sm font-black uppercase tracking-[0.2em] text-cyan">Perfil</p>
+      <h1 className="mt-3 flex items-center gap-3 text-4xl font-black text-white">
+        {loading ? <Loader2 className="animate-spin text-cyan" size={26} /> : null}
+        {title}
+      </h1>
+      <p className="mt-3 max-w-2xl leading-7 text-muted">{description}</p>
+      {!loading ? (
+        <div className="mt-6 flex flex-wrap gap-3">
+          {retryAuth ? (
+            <button onClick={retryAuth} className="inline-flex items-center gap-2 rounded-md bg-white px-4 py-3 text-sm font-black text-void">
+              <RefreshCw size={16} /> Reintentar
+            </button>
+          ) : null}
+          <Link href="/login" className="inline-flex items-center gap-2 rounded-md border border-cyan/30 px-4 py-3 text-sm font-bold text-cyan">
+            <LogIn size={16} /> Volver a entrar
+          </Link>
+          <Link href="/app" className="rounded-md border border-white/10 px-4 py-3 text-sm font-bold text-white">Explorar TrackDJs</Link>
+        </div>
+      ) : null}
+    </section>
   );
 }
 
