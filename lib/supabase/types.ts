@@ -135,7 +135,11 @@ export type Database = {
           id: string;
           user_id: string;
           dj_id: string;
-          seen_at: string;
+          event_id: string | null;
+          seen_at: string | null;
+          rating: number | null;
+          comment: string | null;
+          verification_status: string;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["user_seen_djs"]["Row"]> & { user_id: string; dj_id: string };
@@ -144,15 +148,51 @@ export type Database = {
       };
       user_event_status: {
         Row: {
-          id: string;
           user_id: string;
           event_id: string;
-          status: "interested" | "going" | "attended" | "skipped";
+          status: "interested" | "going" | "attended" | "saved";
           created_at: string;
           updated_at: string;
         };
-        Insert: Partial<Database["public"]["Tables"]["user_event_status"]["Row"]> & { user_id: string; event_id: string; status: "interested" | "going" | "attended" | "skipped" };
+        Insert: Partial<Database["public"]["Tables"]["user_event_status"]["Row"]> & { user_id: string; event_id: string; status: "interested" | "going" | "attended" | "saved" };
         Update: Partial<Database["public"]["Tables"]["user_event_status"]["Row"]>;
+        Relationships: [];
+      };
+      user_dj_follows: {
+        Row: {
+          user_id: string;
+          dj_id: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["user_dj_follows"]["Row"]> & { user_id: string; dj_id: string };
+        Update: Partial<Database["public"]["Tables"]["user_dj_follows"]["Row"]>;
+        Relationships: [];
+      };
+      user_dj_wishlist: {
+        Row: {
+          id: string;
+          user_id: string;
+          dj_id: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["user_dj_wishlist"]["Row"]> & { user_id: string; dj_id: string };
+        Update: Partial<Database["public"]["Tables"]["user_dj_wishlist"]["Row"]>;
+        Relationships: [];
+      };
+      set_reminders: {
+        Row: {
+          id: string;
+          user_id: string;
+          event_id: string | null;
+          dj_id: string | null;
+          stage_name: string | null;
+          start_time: string | null;
+          reminder_key: string | null;
+          remind_minutes_before: number;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["set_reminders"]["Row"]> & { user_id: string };
+        Update: Partial<Database["public"]["Tables"]["set_reminders"]["Row"]>;
         Relationships: [];
       };
     };

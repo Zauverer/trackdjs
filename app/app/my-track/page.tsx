@@ -15,7 +15,7 @@ import { getDJs, getEvents, getUsers } from "@/lib/data";
 import { useTrackState } from "@/lib/use-track-state";
 
 export default function MyTrackPage() {
-  const { state, stats } = useTrackState();
+  const { state, stats, remoteLoading, isAuthenticated } = useTrackState();
   const djs = getDJs();
   const events = getEvents();
   const user = getUsers()[0];
@@ -33,6 +33,15 @@ export default function MyTrackPage() {
           <p className="text-sm font-black uppercase tracking-[0.2em] text-cyan">Mi Track</p>
           <h1 className="mt-2 text-5xl font-black leading-tight text-white">Tu historial electronico esta empezando.</h1>
           <p className="mt-4 max-w-2xl leading-7 text-zinc-300">Cada DJ visto suma a tu identidad de escena. Guarda fiestas, marca sets y comparte tu recorrido cuando quieras.</p>
+          <p className="mt-3 text-sm font-bold text-muted">
+            {isAuthenticated ? (remoteLoading ? "Sincronizando tu cuenta..." : "Sincronizado con tu cuenta TrackDJs.") : "Estás usando modo invitado. Crea cuenta para guardar tu Track entre dispositivos."}
+          </p>
+          {!isAuthenticated ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link href="/signup" className="rounded-md bg-white px-4 py-2 text-sm font-black text-void">Crear cuenta</Link>
+              <Link href="/login" className="rounded-md border border-cyan/30 px-4 py-2 text-sm font-bold text-cyan">Entrar</Link>
+            </div>
+          ) : null}
           <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard label="DJs vistos" value={stats.seenDjs} icon={<Disc3 size={18} />} />
             <StatCard label="Eventos asistidos" value={stats.attendedEvents} icon={<CalendarDays size={18} />} />

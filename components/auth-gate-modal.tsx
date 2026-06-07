@@ -12,7 +12,7 @@ export function AuthGateModal({ open, onClose }: { open: boolean; onClose: () =>
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan">Tu Track</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Crea tu Track para guardar tu actividad.</h2>
+            <h2 className="mt-2 text-2xl font-black text-white">Crea tu Track para guardar tus eventos, DJs vistos y badges.</h2>
           </div>
           <button aria-label="Cerrar" onClick={onClose} className="rounded-md border border-white/10 p-2 text-white"><X size={18} /></button>
         </div>

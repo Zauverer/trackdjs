@@ -1,5 +1,14 @@
 import Link from "next/link";
 import { ExternalLink, Globe2, Headphones, Instagram, Mail, MapPinned, Music2, Phone, Youtube } from "lucide-react";
+import {
+  normalizeInstagramUrl,
+  normalizeSoundCloudUrl,
+  normalizeSpotifyPlaylistUrl,
+  normalizeSpotifyUrl,
+  normalizeTikTokUrl,
+  normalizeWebsiteUrl,
+  normalizeYouTubeUrl
+} from "@/lib/social-url-utils";
 
 export type SocialLinkSet = {
   instagram?: string;
@@ -31,7 +40,7 @@ type SocialLinksProps = {
   compact?: boolean;
 };
 
-function available(value?: string) {
+function available(value?: string | null) {
   return Boolean(value && value.trim() && value.trim() !== "#");
 }
 
@@ -43,13 +52,13 @@ function externalHref(value: string, kind?: "email" | "phone") {
 
 export function SocialLinks({ links, emptyText, compact = false }: SocialLinksProps) {
   const items = [
-    { label: "Instagram", href: links.instagram_url ?? links.instagram, icon: <Instagram size={16} /> },
-    { label: "TikTok", href: links.tiktok_url ?? links.tiktok, icon: <Music2 size={16} /> },
-    { label: "Spotify", href: links.spotify_url ?? links.spotify, icon: <Headphones size={16} /> },
-    { label: "Playlist", href: links.spotify_playlist_url ?? links.spotify_playlist, icon: <Headphones size={16} /> },
-    { label: "SoundCloud", href: links.soundcloud_url ?? links.soundcloud, icon: <Music2 size={16} /> },
-    { label: "YouTube", href: links.youtube_url ?? links.youtube, icon: <Youtube size={16} /> },
-    { label: "Web", href: links.website_url ?? links.website, icon: <Globe2 size={16} /> },
+    { label: "Instagram", href: normalizeInstagramUrl(links.instagram_url ?? links.instagram), icon: <Instagram size={16} /> },
+    { label: "TikTok", href: normalizeTikTokUrl(links.tiktok_url ?? links.tiktok), icon: <Music2 size={16} /> },
+    { label: "Spotify", href: normalizeSpotifyUrl(links.spotify_url ?? links.spotify), icon: <Headphones size={16} /> },
+    { label: "Playlist", href: normalizeSpotifyPlaylistUrl(links.spotify_playlist_url ?? links.spotify_playlist), icon: <Headphones size={16} /> },
+    { label: "SoundCloud", href: normalizeSoundCloudUrl(links.soundcloud_url ?? links.soundcloud), icon: <Music2 size={16} /> },
+    { label: "YouTube", href: normalizeYouTubeUrl(links.youtube_url ?? links.youtube), icon: <Youtube size={16} /> },
+    { label: "Web", href: normalizeWebsiteUrl(links.website_url ?? links.website), icon: <Globe2 size={16} /> },
     { label: "Email", href: links.contact_email ?? links.email, kind: "email" as const, icon: <Mail size={16} /> },
     { label: "Teléfono", href: links.contact_phone ?? links.phone, kind: "phone" as const, icon: <Phone size={16} /> },
     { label: "Cómo llegar", href: links.directions ?? links.map_url ?? links.map, icon: <MapPinned size={16} /> },

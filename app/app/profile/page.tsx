@@ -8,6 +8,14 @@ import { SocialLinks } from "@/components/social-links";
 import { UserAvatar } from "@/components/user-avatar";
 import { useSession } from "@/components/auth-provider";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  isValidUsernameSlug,
+  normalizeInstagramUrl,
+  normalizeSpotifyPlaylistUrl,
+  normalizeSpotifyUrl,
+  normalizeTikTokUrl,
+  normalizeWebsiteUrl
+} from "@/lib/social-url-utils";
 import type { Database } from "@/lib/supabase/types";
 
 const fields = [
@@ -54,7 +62,26 @@ export default function ProfilePage() {
     setStatus(null);
 
     try {
-      const username = normalizeUsername(form.username) ?? usernameFromEmail(user.email);
+      const rawUsername = form.username?.trim() || usernameFromEmail(user.email);
+      const username = normalizeUsername(rawUsername);
+      if (!username || !isValidUsernameSlug(rawUsername)) {
+        setStatus({ type: "error", text: "El username no debe ser una URL. Usa solo letras, números o guiones." });
+        return;
+      }
+
+      const normalizedLinks = {
+        instagram_url: normalizeInstagramUrl(form.instagram_url),
+        tiktok_url: normalizeTikTokUrl(form.tiktok_url),
+        spotify_url: normalizeSpotifyUrl(form.spotify_url),
+        spotify_playlist_url: normalizeSpotifyPlaylistUrl(form.spotify_playlist_url),
+        website_url: normalizeWebsiteUrl(form.website_url)
+      };
+      const invalidSocialField = Object.entries(normalizedLinks).find(([key, value]) => Boolean(form[key]?.trim()) && !value);
+      if (invalidSocialField) {
+        setStatus({ type: "error", text: "Revisa tus links sociales. Usa un usuario válido o una URL completa." });
+        return;
+      }
+
       const payload: Database["public"]["Tables"]["profiles"]["Insert"] = {
         id: user.id,
         email: user.email ?? null,
@@ -63,11 +90,7 @@ export default function ProfilePage() {
         avatar_url: profile?.avatar_url ?? null,
         city: clean(form.city),
         bio: clean(form.bio),
-        instagram_url: clean(form.instagram_url),
-        tiktok_url: clean(form.tiktok_url),
-        spotify_url: clean(form.spotify_url),
-        spotify_playlist_url: clean(form.spotify_playlist_url),
-        website_url: clean(form.website_url),
+        ...normalizedLinks,
         public_contact_enabled: profile?.public_contact_enabled ?? false,
         updated_at: new Date().toISOString()
       };

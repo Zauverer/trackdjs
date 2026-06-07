@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { BottomNav } from "@/components/bottom-nav";
 import { AuthMenu } from "@/components/auth-menu";
+import { TrackActionModals } from "@/components/track-action-modals";
 
 const nav = [
   ["Radar", "/app"],
@@ -32,6 +33,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
       <main className="mx-auto max-w-7xl px-3 py-4 md:px-4 md:py-6">{children}</main>
       <BottomNav />
+      <TrackActionModals />
     </div>
   );
 }

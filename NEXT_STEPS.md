@@ -88,3 +88,15 @@ Conectar credenciales reales Supabase y migrar persistencia progresivamente sin 
 ## Principio de producto
 
 Mantener `Mi Track` como el corazón de la experiencia: cada acción debe enriquecer la identidad musical del usuario.
+
+## Futuro Gamificado
+
+- Banderas de países donde el usuario ha visto a cada DJ.
+- Ranking de fans que vieron un DJ en más países.
+- DJ más seguido por cada usuario.
+- DJ que más ha tocado dentro del radar TrackDJs.
+- DJ con más horas acumuladas tocadas por ciudad, venue y festival.
+- Enlaces a videos de YouTube de sets/eventos.
+- Ranking “más fan de este DJ”.
+- Evidencia futura por foto/metadatos para validar asistencia.
+- Badges por país, ciudad, festival, género y etapa de la noche.

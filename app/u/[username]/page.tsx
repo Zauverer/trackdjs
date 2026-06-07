@@ -40,6 +40,19 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       .eq("user_id", profile.id)
       .eq("status", "attended");
 
+    const { data: seenRows } = await supabase!
+      .from("user_seen_djs")
+      .select("djs(slug, artist_name)")
+      .eq("user_id", profile.id)
+      .limit(6);
+
+    const { data: attendedRows } = await supabase!
+      .from("user_event_status")
+      .select("events(slug, name)")
+      .eq("user_id", profile.id)
+      .eq("status", "attended")
+      .limit(3);
+
     return (
       <PublicProfileShell
         username={profile.username ?? username}
@@ -55,6 +68,8 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
         }}
         seenCount={seenCount ?? 0}
         attendedCount={attendedCount ?? 0}
+        seenDjs={normalizeSeenRows(seenRows)}
+        attendedEvents={normalizeAttendedRows(attendedRows)}
       />
     );
   }
@@ -75,6 +90,8 @@ export default async function PublicUserPage({ params }: { params: Promise<{ use
       }}
       seenCount={getDJs().slice(0, 6).length}
       attendedCount={getEvents().slice(0, 3).length}
+      seenDjs={getDJs().slice(0, 6).map((dj) => ({ slug: dj.slug, name: dj.name }))}
+      attendedEvents={getEvents().slice(0, 3).map((event) => ({ slug: event.slug, name: event.name, venue: event.venue }))}
     />
   );
 }
@@ -101,7 +118,9 @@ function PublicProfileShell({
   bio,
   social,
   seenCount,
-  attendedCount
+  attendedCount,
+  seenDjs,
+  attendedEvents
 }: {
   username: string;
   name: string;
@@ -110,10 +129,10 @@ function PublicProfileShell({
   social: SocialLinkSet;
   seenCount: number;
   attendedCount: number;
+  seenDjs: { slug: string; name: string }[];
+  attendedEvents: { slug: string; name: string; venue?: string }[];
 }) {
   const badges = getBadges().slice(0, 4);
-  const seenDjs = getDJs().slice(0, Math.min(seenCount, 6));
-  const attended = getEvents().slice(0, Math.min(attendedCount, 3));
 
   return (
     <div className="min-h-screen px-4 py-6">
@@ -145,7 +164,7 @@ function PublicProfileShell({
             <div className="glass rounded-lg p-4">
               <h2 className="text-2xl font-black text-white">Eventos asistidos</h2>
               <div className="mt-3 space-y-2 text-sm text-zinc-300">
-                {attended.length ? attended.map((event) => <p key={event.slug}>{event.name} · {event.venue}</p>) : <p className="text-muted">Todavía no hay eventos públicos.</p>}
+                {attendedEvents.length ? attendedEvents.map((event) => <p key={event.slug}>{event.name}{event.venue ? ` · ${event.venue}` : ""}</p>) : <p className="text-muted">Todavía no hay eventos públicos.</p>}
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -157,4 +176,28 @@ function PublicProfileShell({
       </main>
     </div>
   );
+}
+
+function normalizeSeenRows(rows: unknown) {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((row) => {
+      const record = row as { djs?: unknown };
+      const dj = Array.isArray(record.djs) ? record.djs[0] : record.djs;
+      const djRecord = dj as { slug?: unknown; artist_name?: unknown } | undefined;
+      return djRecord?.slug && djRecord?.artist_name ? { slug: String(djRecord.slug), name: String(djRecord.artist_name) } : null;
+    })
+    .filter(Boolean) as { slug: string; name: string }[];
+}
+
+function normalizeAttendedRows(rows: unknown) {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((row) => {
+      const record = row as { events?: unknown };
+      const event = Array.isArray(record.events) ? record.events[0] : record.events;
+      const eventRecord = event as { slug?: unknown; name?: unknown } | undefined;
+      return eventRecord?.slug && eventRecord?.name ? { slug: String(eventRecord.slug), name: String(eventRecord.name) } : null;
+    })
+    .filter(Boolean) as { slug: string; name: string }[];
 }
