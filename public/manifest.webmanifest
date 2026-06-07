@@ -1,0 +1,17 @@
+{
+  "name": "TrackDJs",
+  "short_name": "TrackDJs",
+  "description": "Sigue DJs, descubre fiestas, guarda lineups y construye tu historial de DJs vistos.",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

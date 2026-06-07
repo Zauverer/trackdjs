@@ -1,0 +1,14 @@
+export { badges } from "@/data/mock";
+export { djs } from "@/data/mock";
+export { events } from "@/data/mock";
+export { genres } from "@/data/mock";
+export { producers } from "@/data/mock";
+export { users } from "@/data/mock";
+export { venues } from "@/data/mock";
+export * from "./badges";
+export * from "./djs";
+export * from "./events";
+export * from "./genres";
+export * from "./producers";
+export * from "./users";
+export * from "./venues";
