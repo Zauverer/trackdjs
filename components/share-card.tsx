@@ -1,10 +1,11 @@
 "use client";
 
 import { Copy, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { ActionButton } from "@/components/action-button";
 import { trackEvent } from "@/lib/analytics";
 
-export function ShareCard({ seen, events, genre }: { seen: number; events: number; genre: string }) {
+export function ShareCard({ seen, events, genre, countries, trackHref }: { seen: number; events: number; genre: string; countries?: number; trackHref?: string }) {
   const text = `Mi Track 2026: ${seen} DJs vistos, ${events} fiestas asistidas. Genero principal: ${genre}.`;
 
   return (
@@ -25,7 +26,14 @@ export function ShareCard({ seen, events, genre }: { seen: number; events: numbe
             <div className="text-sm font-black">{genre}</div>
             <div className="text-xs text-zinc-300">genero principal</div>
           </div>
+          {typeof countries === "number" ? (
+            <div className="col-span-2 rounded-md bg-white/10 p-3">
+              <div className="text-2xl font-black">{countries}</div>
+              <div className="text-xs text-zinc-300">países explorados</div>
+            </div>
+          ) : null}
         </div>
+        {trackHref ? <Link href={trackHref} className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-white px-4 text-sm font-black text-void">Ver Mi Track</Link> : null}
         <ActionButton className="mt-5 w-full" onClick={() => { trackEvent("my_track_shared"); navigator.clipboard?.writeText(text); }} icon={<Copy size={16} />}>
           Compartir mi Track
         </ActionButton>

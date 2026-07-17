@@ -189,7 +189,7 @@ function PublicProfileShell({
               {badges.map((badge) => <BadgeCard key={badge.id} badge={badge} />)}
             </div>
           </div>
-          <ShareCard seen={seenCount} events={attendedCount} genre="Techno" />
+          <ShareCard seen={seenCount} events={attendedCount} genre="Techno" countries={countryBadges.length} trackHref="/app/my-track" />
         </section>
       </main>
     </div>

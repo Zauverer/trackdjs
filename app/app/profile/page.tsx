@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import { Bookmark, CalendarDays, Disc3, Edit3, Eye, Heart, Loader2, LogIn, LogOut, MapPin, RefreshCw, Save, Star } from "lucide-react";
 import { ActionButton } from "@/components/action-button";
 import { SectionHeader } from "@/components/section-header";
@@ -9,6 +9,7 @@ import { SocialLinks } from "@/components/social-links";
 import { StatCard } from "@/components/stat-card";
 import { UserAvatar } from "@/components/user-avatar";
 import { SeenDJMedalRack } from "@/components/seen-dj-medal-rack";
+import { ShareCard } from "@/components/share-card";
 import { useSession } from "@/components/auth-provider";
 import { DJCard } from "@/components/dj-card";
 import { EventCard } from "@/components/event-card";
@@ -39,20 +40,52 @@ const fields = [
   ["website_url", "Website"]
 ] as const;
 
+type ProfileTab = "summary" | "activity" | "edit" | "settings";
+type ActivitySection = "seen-djs" | "followed-djs" | "wishlist-djs" | "saved-events" | "going-events" | "attended-events" | "reminders";
+const validTabs: ProfileTab[] = ["summary", "activity", "edit", "settings"];
+const validSections: ActivitySection[] = ["seen-djs", "followed-djs", "wishlist-djs", "saved-events", "going-events", "attended-events", "reminders"];
+
 export default function ProfilePage() {
   const { loading, error, user, profile, refreshProfile, retryAuth, logout } = useSession();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const { state, stats, remoteLoading, isAuthenticated } = useTrackState();
-  const [tab, setTab] = useState<"summary" | "edit" | "activity" | "settings">("summary");
+  const [tab, setTab] = useState<ProfileTab>("summary");
+  const [highlightedSection, setHighlightedSection] = useState<ActivitySection | null>(null);
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    const requestedTab = new URLSearchParams(window.location.search).get("tab");
-    if (requestedTab === "editar" || requestedTab === "edit") setTab("edit");
-    if (requestedTab === "actividad" || requestedTab === "activity") setTab("activity");
+    function readLocation() {
+      const params = new URLSearchParams(window.location.search);
+      const requestedTab = params.get("tab");
+      const requestedSection = params.get("section");
+      const nextTab = validTabs.includes(requestedTab as ProfileTab) ? requestedTab as ProfileTab : requestedSection ? "activity" : "summary";
+      setTab(nextTab);
+      setHighlightedSection(validSections.includes(requestedSection as ActivitySection) ? requestedSection as ActivitySection : null);
+    }
+    readLocation();
+    window.addEventListener("popstate", readLocation);
+    return () => window.removeEventListener("popstate", readLocation);
   }, []);
+
+  useEffect(() => {
+    if (tab !== "activity" || !highlightedSection) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(highlightedSection)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    const timeout = window.setTimeout(() => setHighlightedSection(null), 2200);
+    return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timeout); };
+  }, [tab, highlightedSection]);
+
+  function navigateToTab(nextTab: ProfileTab, section?: ActivitySection) {
+    const params = new URLSearchParams();
+    if (nextTab !== "summary") params.set("tab", nextTab);
+    if (section) params.set("section", section);
+    window.history.pushState(null, "", `/app/profile${params.size ? `?${params.toString()}` : ""}`);
+    setTab(nextTab);
+    setHighlightedSection(section ?? null);
+  }
 
   useEffect(() => {
     if (!profile) return;
@@ -187,7 +220,6 @@ export default function ProfilePage() {
   const username = profile?.username ?? "track";
   const djs = getDJs();
   const events = getEvents();
-  const seenDjs = djs.filter((dj) => state.seenDjs.includes(dj.slug));
   const followedDjs = djs.filter((dj) => state.followedDjs.includes(dj.slug));
   const wantToSeeDjs = djs.filter((dj) => state.wantToSeeDjs.includes(dj.slug));
   const savedEvents = events.filter((event) => state.savedEvents.includes(event.slug));
@@ -219,7 +251,7 @@ export default function ProfilePage() {
               />
             </div>
           </div>
-          <ActionButton onClick={() => setTab("edit")} icon={<Edit3 size={16} />}>Editar perfil</ActionButton>
+          <ActionButton onClick={() => navigateToTab("edit")} icon={<Edit3 size={16} />}>Editar perfil</ActionButton>
         </div>
       </section>
 
@@ -232,7 +264,8 @@ export default function ProfilePage() {
         ].map(([key, label]) => (
           <button
             key={key}
-            onClick={() => setTab(key as typeof tab)}
+            onClick={() => navigateToTab(key as ProfileTab)}
+            aria-pressed={tab === key}
             className={`shrink-0 rounded-md border px-4 py-2 text-sm font-black ${tab === key ? "border-cyan/50 bg-cyan/10 text-cyan" : "border-white/10 text-muted hover:text-white"}`}
           >
             {label}
@@ -243,12 +276,12 @@ export default function ProfilePage() {
       {tab === "summary" ? (
         <section className="space-y-6">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-            <StatCard label="DJs vistos" value={stats.seenDjs} icon={<Eye size={18} />} />
-            <StatCard label="Eventos guardados" value={stats.savedEvents} icon={<Bookmark size={18} />} />
-            <StatCard label="Voy" value={stats.goingEvents} icon={<CalendarDays size={18} />} />
-            <StatCard label="Asistidos" value={stats.attendedEvents} icon={<Disc3 size={18} />} />
-            <StatCard label="Siguiendo" value={stats.followedDjs} icon={<Heart size={18} />} />
-            <StatCard label="Quiero ver" value={state.wantToSeeDjs.length} icon={<Star size={18} />} />
+            <StatCard label="DJs vistos" value={stats.seenDjs} icon={<Eye size={18} />} onClick={() => navigateToTab("activity", "seen-djs")} />
+            <StatCard label="Eventos guardados" value={stats.savedEvents} icon={<Bookmark size={18} />} onClick={() => navigateToTab("activity", "saved-events")} />
+            <StatCard label="Voy" value={stats.goingEvents} icon={<CalendarDays size={18} />} onClick={() => navigateToTab("activity", "going-events")} />
+            <StatCard label="Asistidos" value={stats.attendedEvents} icon={<Disc3 size={18} />} onClick={() => navigateToTab("activity", "attended-events")} />
+            <StatCard label="Siguiendo" value={stats.followedDjs} icon={<Heart size={18} />} onClick={() => navigateToTab("activity", "followed-djs")} />
+            <StatCard label="Quiero ver" value={state.wantToSeeDjs.length} icon={<Star size={18} />} onClick={() => navigateToTab("activity", "wishlist-djs")} />
           </div>
           <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
             <div className="glass rounded-lg p-5">
@@ -256,21 +289,14 @@ export default function ProfilePage() {
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link href={`/u/${username}`} className="rounded-md bg-white px-4 py-3 text-sm font-black text-void">Ver perfil público</Link>
                 <Link href="/app/my-track" className="rounded-md border border-cyan/30 px-4 py-3 text-sm font-bold text-cyan">Mi Track</Link>
-                <button onClick={() => setTab("edit")} className="rounded-md border border-white/10 px-4 py-3 text-sm font-bold text-white">Editar perfil</button>
+                <button onClick={() => navigateToTab("edit")} className="rounded-md border border-white/10 px-4 py-3 text-sm font-bold text-white">Editar perfil</button>
               </div>
               <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.03] p-4">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan">Países explorados</p>
                 <p className="mt-3 text-3xl">{countryBadges.join(" · ") || "🇨🇱 CL"}</p>
               </div>
             </div>
-            <div className="glass rounded-lg p-5">
-              <h2 className="text-xl font-black text-white">Acciones recientes</h2>
-              <div className="mt-4 space-y-3 text-sm text-zinc-300">
-                <p>{seenDjs[0] ? `Viste a ${seenDjs[0].name}` : "Marca tu primer DJ visto."}</p>
-                <p>{goingEvents[0] ? `Vas a ${goingEvents[0].name}` : "Marca un evento como Voy."}</p>
-                <p>{savedEvents[0] ? `Guardaste ${savedEvents[0].name}` : "Guarda una fecha en tu radar."}</p>
-              </div>
-            </div>
+            <ShareCard seen={stats.seenDjs} events={stats.attendedEvents} genre={stats.dominantGenre} countries={countryBadges.length} trackHref="/app/my-track" />
           </div>
           <div className="glass rounded-lg p-5">
             <SectionHeader title="Medallas de DJs vistos" description="Tu colección pública de sets vistos en vivo." />
@@ -312,14 +338,13 @@ export default function ProfilePage() {
       {tab === "activity" ? (
         <section className="space-y-6">
           <SectionHeader title="Actividad" description="Resumen de tus DJs, wishlist y eventos." />
-          <SeenDJMedalRack activity={seenActivity} />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {followedDjs.slice(0, 3).map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}
-            {wantToSeeDjs.slice(0, 3).map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {[...savedEvents, ...goingEvents, ...attendedEvents].slice(0, 6).map((event, index) => <EventCard key={`${event.slug}-${index}`} event={event} />)}
-          </div>
+          <ActivityPanel id="seen-djs" title="DJs vistos" highlighted={highlightedSection === "seen-djs"}><SeenDJMedalRack activity={seenActivity} /></ActivityPanel>
+          <ActivityPanel id="followed-djs" title="DJs seguidos" highlighted={highlightedSection === "followed-djs"}>{followedDjs.length ? <CardGrid>{followedDjs.map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}</CardGrid> : <ActivityEmpty text="Todavía no sigues DJs." />}</ActivityPanel>
+          <ActivityPanel id="wishlist-djs" title="Wishlist de DJs" highlighted={highlightedSection === "wishlist-djs"}>{wantToSeeDjs.length ? <CardGrid>{wantToSeeDjs.map((dj) => <DJCard key={dj.slug} dj={dj} compact />)}</CardGrid> : <ActivityEmpty text="Tu wishlist todavía está vacía." />}</ActivityPanel>
+          <ActivityPanel id="saved-events" title="Eventos guardados" highlighted={highlightedSection === "saved-events"}>{savedEvents.length ? <CardGrid>{savedEvents.map((event) => <EventCard key={event.slug} event={event} />)}</CardGrid> : <ActivityEmpty text="Todavía no guardaste eventos." />}</ActivityPanel>
+          <ActivityPanel id="going-events" title="Eventos: Voy" highlighted={highlightedSection === "going-events"}>{goingEvents.length ? <CardGrid>{goingEvents.map((event) => <EventCard key={event.slug} event={event} />)}</CardGrid> : <ActivityEmpty text="No tienes eventos marcados como Voy." />}</ActivityPanel>
+          <ActivityPanel id="attended-events" title="Eventos asistidos" highlighted={highlightedSection === "attended-events"}>{attendedEvents.length ? <CardGrid>{attendedEvents.map((event) => <EventCard key={event.slug} event={event} />)}</CardGrid> : <ActivityEmpty text="Todavía no marcaste eventos como asistidos." />}</ActivityPanel>
+          <ActivityPanel id="reminders" title="Recordatorios" highlighted={highlightedSection === "reminders"}><ActivityEmpty text="Tus recordatorios aparecerán aquí." /></ActivityPanel>
         </section>
       ) : null}
 
@@ -334,6 +359,23 @@ export default function ProfilePage() {
       ) : null}
     </div>
   );
+}
+
+function ActivityPanel({ id, title, highlighted, children }: { id: ActivitySection; title: string; highlighted: boolean; children: ReactNode }) {
+  return (
+    <section id={id} className={`scroll-mt-24 rounded-lg border p-4 transition duration-500 md:p-5 ${highlighted ? "border-cyan bg-cyan/10 shadow-glow" : "border-white/10 bg-white/[0.03]"}`}>
+      <h2 className="mb-4 text-xl font-black text-white">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function CardGrid({ children }: { children: ReactNode }) {
+  return <div className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-3">{children}</div>;
+}
+
+function ActivityEmpty({ text }: { text: string }) {
+  return <p className="rounded-md border border-dashed border-white/10 p-4 text-sm text-muted">{text}</p>;
 }
 
 function ProfileStateCard({

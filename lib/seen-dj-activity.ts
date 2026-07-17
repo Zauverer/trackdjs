@@ -11,7 +11,7 @@ export type SeenDJActivity = {
   flag: string;
   eventName?: string;
   eventSlug?: string;
-  status: "self_reported" | "verified";
+  status: "self_reported" | "verified" | "photo_pending" | "rejected";
 };
 
 type PublicSeenRow = {
@@ -70,9 +70,14 @@ export function buildSeenDJActivityFromPublicRows(rows: unknown): SeenDJActivity
         flag,
         eventName: record.event_name ?? undefined,
         eventSlug: record.event_slug ?? undefined,
-        status: record.verification_status === "verified" ? "verified" as const : "self_reported" as const
+        status: normalizeVerificationStatus(record.verification_status)
       };
     })
     .filter((item): item is SeenDJActivity => Boolean(item));
   return activity;
+}
+
+function normalizeVerificationStatus(status?: string | null): SeenDJActivity["status"] {
+  if (status === "verified" || status === "photo_pending" || status === "rejected") return status;
+  return "self_reported";
 }
