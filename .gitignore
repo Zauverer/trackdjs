@@ -8,3 +8,7 @@ out
 dist
 coverage
 *.tsbuildinfo
+
+.env.local
+.env*.local
+
