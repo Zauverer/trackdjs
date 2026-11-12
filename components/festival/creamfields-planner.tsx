@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import festival from "@/lib/festival/creamfields-2026.json";
 
 type FestivalSet = { id: string; day: string; stage: string; artist: string; start: string; end: string };
@@ -69,12 +69,11 @@ export default function CreamfieldsPlanner() {
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
   const [ready, setReady] = useState(false);
-  const loadedShared = useRef(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const hasShared = params.has("lineup");
     const shared = safeIds(params.get("lineup"));
-    if (hasShared) { setIds(shared); loadedShared.current = true; }
+    if (hasShared) { setIds(shared); }
     else {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
