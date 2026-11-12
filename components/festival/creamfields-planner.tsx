@@ -62,6 +62,7 @@ async function posterFile(chosen: FestivalSet[]): Promise<File> {
 
 export default function CreamfieldsPlanner() {
   const [accepted, setAccepted] = useState(false);
+  const [agreementChecked, setAgreementChecked] = useState(false);
   const [privacyMode, setPrivacyMode] = useState(true);
   const [ids, setIds] = useState<string[]>([]);
   const [day, setDay] = useState("2026-11-14");
@@ -141,10 +142,11 @@ export default function CreamfieldsPlanner() {
     {!accepted ? <section className="mt-8 max-w-3xl rounded-2xl border border-cyan/40 bg-white/[.05] p-5">
       <h2 className="text-xl font-bold">Acuerdo de participación beta</h2>
       <p className="mt-2 text-sm leading-6 text-zinc-300">Esta es una herramienta experimental no oficial. Los horarios son referenciales y pueden modificarse. El lineup que compartas será visible para cualquiera con el enlace. No incluyas datos personales en el enlace. Al continuar aceptas probarla bajo estas condiciones.</p>
-      <label className="mt-5 flex gap-3 text-sm"><input type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} className="h-5 w-5 accent-cyan" /><span>He leído y acepto el acuerdo para participar en la beta (obligatorio).</span></label>
+      <label className="mt-5 flex gap-3 text-sm"><input type="checkbox" checked={agreementChecked} onChange={(e) => setAgreementChecked(e.target.checked)} className="h-5 w-5 accent-cyan" /><span>He leído y acepto el acuerdo para participar en la beta (obligatorio).</span></label>
       <label className="mt-4 flex gap-3 text-sm"><input type="checkbox" checked={privacyMode} onChange={(e) => setPrivacyMode(e.target.checked)} className="h-5 w-5 accent-cyan" /><span>Modo privado: no guardar mi selección ni mi aceptación en este dispositivo (recomendado). Puedes generar y compartir el lineup igualmente.</span></label>
+      <button type="button" disabled={!agreementChecked} onClick={() => setAccepted(true)} className="mt-5 rounded-lg bg-cyan px-5 py-3 font-black text-black disabled:opacity-40">Entrar al planner beta</button>
     </section> : <section className="mt-8 rounded-xl border border-white/10 bg-white/[.04] p-4 text-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3"><span>{privacyMode ? "Modo privado · Solo memoria de esta pestaña" : "Guardado local en este navegador · Sin cuenta"}</span><button type="button" className="underline text-cyan" onClick={() => {setAccepted(false);setPrivacyMode(true);try{localStorage.removeItem(STORAGE_KEY);}catch{} }}>Revocar aceptación y borrar guardado</button></div>
+      <div className="flex flex-wrap items-center justify-between gap-3"><span>{privacyMode ? "Modo privado · Solo memoria de esta pestaña" : "Guardado local en este navegador · Sin cuenta"}</span><button type="button" className="underline text-cyan" onClick={() => {setAccepted(false);setAgreementChecked(false);setPrivacyMode(true);try{localStorage.removeItem(STORAGE_KEY);}catch{} }}>Revocar aceptación y borrar guardado</button></div>
     </section>}
     {accepted && <>
       <section className="mt-7 flex flex-wrap gap-3">
