@@ -251,8 +251,10 @@ export default function CreamfieldsPlanner(){
               <span className="flex items-center gap-1 font-extrabold text-[#baff7d]"><Heart size={16} fill={heart.completed?"currentColor":"none"}/> RAVER HEART</span>
               <span className="whitespace-nowrap font-black tabular-nums text-white">{percentage}%</span>
             </div>
-            <div role="progressbar" aria-label={"Raver Heart "+dayName(day)} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentage} className="mt-2 h-2 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-gradient-to-r from-[#82eea2] to-[#c8ff79] transition-all duration-500" style={{width:percentage+"%"}}/></div>
-            <p className="mt-1 truncate text-[10px] text-zinc-400 sm:text-xs">{heart.completed?"¡Agenda diaria lista!":heart.validSets+" de "+heart.goal+" sets sin cruces hoy · 100% = meta del día"}</p>
+            <div role="progressbar" aria-label={"Cobertura planificada "+dayName(day)} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentage} className="relative mt-2 h-3 overflow-hidden rounded-full bg-white/15">
+                {heart.segments.map((seg,i)=><span key={i} className="absolute inset-y-0 rounded-full bg-gradient-to-r from-[#82eea2] to-[#c8ff79] transition-all duration-300" style={{left:((seg.start-heart.start)/Math.max(1,heart.totalMinutes)*100)+"%",width:((seg.end-seg.start)/Math.max(1,heart.totalMinutes)*100)+"%"}}/>)}
+              </div>
+            <p className="mt-1 truncate text-[10px] text-zinc-400 sm:text-xs">{heart.completed?"¡Cobertura completa de apertura a cierre!":heart.coveredMinutes+" de "+heart.totalMinutes+" min del "+dayName(day)+" · "+heart.startLabel+"–"+heart.endLabel}</p>
           </div>
           <button type="button" onClick={()=>document.getElementById("animated-route")?.scrollIntoView({behavior:"smooth",block:"start"})} className="hidden rounded-xl border border-white/15 px-3 py-2 text-xs font-bold text-[#ccff92] sm:block" disabled={!showAnimation}>Ver escena</button>
         </div>
@@ -276,8 +278,8 @@ export default function CreamfieldsPlanner(){
         <div className="rounded-3xl border border-white/10 bg-white/[.035] p-5">
           <p className="text-xs font-bold uppercase tracking-[.2em] text-[#bcff7b]">02 · Tu progreso</p>
           <div className="mt-3 flex items-end gap-3"><span className="text-5xl font-black">{ids.length}</span><span className="pb-2 text-sm text-zinc-400">sets marcados Voy</span></div>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-[#c7ff74] to-[#6ee7e5] transition-all" style={{width:percentage+"%"}}/></div><p className="mt-2 text-xs text-[#caff8c]">Raver Heart {percentage}% · {heart.validSets}/{heart.goal} sets sin cruces el {dayName(day)}</p>
-          <p className="mt-3 text-sm text-zinc-300">{ids.length===0?"Elige tu primera parada 🎧":ids.length<4?"¡Buen inicio! Tu ruta está tomando forma ✨":ids.length<10?"Tu agenda ya tiene identidad 🔥":"¡Listo para compartir y descubrir coincidencias! 🌟"}</p>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-[#c7ff74] to-[#6ee7e5] transition-all" style={{width:percentage+"%"}}/></div><p className="mt-2 text-xs text-[#caff8c]">Raver Heart {percentage}% · {heart.coveredMinutes}/{heart.totalMinutes} min cubiertos · {heart.startLabel}–{heart.endLabel}</p>
+          <p className="mt-2 text-xs text-zinc-400">Los huecos y los conflictos no suman minutos. Raver Heart llega al 100% únicamente con cobertura continua desde apertura hasta cierre.</p><p className="mt-3 text-sm text-zinc-300">{ids.length===0?"Elige tu primera parada 🎧":ids.length<4?"¡Buen inicio! Tu ruta está tomando forma ✨":ids.length<10?"Tu agenda ya tiene identidad 🔥":"¡Listo para compartir y descubrir coincidencias! 🌟"}</p>
           <div className="mt-5 flex flex-wrap gap-2 text-sm"><span className="rounded-full border border-white/10 px-3 py-2">🤔 Tal vez {maybeIds.length}</span><span className="rounded-full border border-white/10 px-3 py-2">✕ No voy {noIds.length}</span><span className="rounded-full border border-white/10 px-3 py-2">⚡ Sugeridos {myRoute.length}</span></div>
           {knownStyles.length>0&&<p className="mt-4 text-xs text-zinc-400">Tu vibra: {knownStyles.map(s=>s.label).join(" · ")}</p>}
         </div>
