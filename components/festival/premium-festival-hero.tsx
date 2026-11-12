@@ -40,7 +40,7 @@ export default function PremiumFestivalHero({
     if(!stages.length)return;
     onStageChange(stages[(activeIndex+direction+count)%count]);
   }
-  function usePointer(event:PointerEvent<HTMLDivElement>) {
+  function selectPointerStage(event:PointerEvent<HTMLDivElement>) {
     if(!stages.length)return;
     const box=event.currentTarget.getBoundingClientRect();
     const dx=event.clientX-box.left-box.width/2;
@@ -88,7 +88,7 @@ export default function PremiumFestivalHero({
         <div className={styles.selectorHeading}><span>Control de escenarios</span><div className={styles.toggle} aria-label="Cambiar vista de escenarios"><button type="button" aria-pressed={dialView==="bezel"} onClick={()=>setDialView("bezel")} title="Bisel giratorio"><Disc3 size={14}/></button><button type="button" aria-pressed={dialView==="rail"} onClick={()=>setDialView("rail")} title="Lista compacta"><List size={14}/></button></div></div>
         {dialView==="bezel"?
           <>
-            <div className={styles.bezel} onPointerDown={e=>{if((e.target as HTMLElement).closest("button"))return;e.currentTarget.setPointerCapture(e.pointerId);usePointer(e);}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))usePointer(e);}} onPointerUp={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}} aria-label="Bisel interactivo. Desliza para cambiar escenario">
+            <div className={styles.bezel} onPointerDown={e=>{if((e.target as HTMLElement).closest("button"))return;e.currentTarget.setPointerCapture(e.pointerId);selectPointerStage(e);}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))selectPointerStage(e);}} onPointerUp={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}} aria-label="Bisel interactivo. Desliza para cambiar escenario">
               <div className={styles.bezelInner}>
                 <span className={styles.knob} style={{transform:"rotate("+(-90+activeIndex*360/count)+"deg)"}} aria-hidden="true"/>
                 {dialOptions.map(({stage,index,left,top})=><button type="button" key={stage} className={styles.stageNode} style={{"--left":left,"--top":top} as CSSProperties} aria-label={"Elegir "+stage} aria-pressed={selectedStage===stage} onClick={()=>onStageChange(stage)}>{String(index+1).padStart(2,"0")}</button>)}
