@@ -134,7 +134,8 @@ function renderOutro(c:CanvasRenderingContext2D,allSets:FestivalSet[],route:Rout
   write(c,"TU RUTA, VISTA DESDE ARRIBA",w/2,h*.274,34,"#d8e9ff",900);
   write(c,"ESQUEMA DE ORDEN, NO MAPA REAL",w/2,h*.298,23,"#8eacc1",600);
   c.textAlign="left";
-  const nodes=route.slice(0,8);
+  const nodes=route;
+  const radius=nodes.length>12?25:nodes.length>8?32:44;
   const left=w*.18,right=w*.82;
   const top=h*.34,bottom=h*.62;
   const step=nodes.length>1?(bottom-top)/(nodes.length-1):0;
@@ -144,13 +145,13 @@ function renderOutro(c:CanvasRenderingContext2D,allSets:FestivalSet[],route:Rout
     c.strokeStyle="#f9df59";c.lineWidth=11;c.lineJoin="round";c.shadowColor="#ffe54c";c.shadowBlur=21;c.stroke();c.shadowBlur=0;
     positions.forEach((p,i)=>{
       const color=COLORS[p.s.stage]?.primary??theme.primary;
-      c.fillStyle="#111a2c";c.beginPath();c.arc(p.x,p.y,44,0,Math.PI*2);c.fill();
-      c.strokeStyle="#f8df62";c.lineWidth=6;c.stroke();
-      c.textAlign="center";write(c,String(i+1),p.x,p.y+12,32,color,900);
+      c.fillStyle="#111a2c";c.beginPath();c.arc(p.x,p.y,radius,0,Math.PI*2);c.fill();
+      c.strokeStyle="#f8df62";c.lineWidth=5;c.stroke();
+      c.textAlign="center";write(c,String(i+1),p.x,p.y+8,radius>34?30:20,color,900);
       const direction=i%2===0?1:-1;
       c.textAlign=direction===1?"left":"right";
-      const target=p.x+direction*68;
-      write(c,p.s.artist.slice(0,18),target,p.y+8,25,"#ffffff",800,325);
+      const target=p.x+direction*(radius+22);
+      write(c,p.s.artist.slice(0,18),target,p.y+8,nodes.length>12?20:25,"#ffffff",800,325);
       c.textAlign="left";
     });
   }
