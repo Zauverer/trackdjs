@@ -15,6 +15,7 @@ import { raverHeartProgress } from "@/lib/festival/raver-heart";
 const sets = festival.sets as FestivalSet[];
 const STORAGE_KEY = "trackdjs:creamfields:lineup:v2";
 const LEGACY_KEY = "trackdjs:creamfields:lineup:v1";
+const SESSION_KEY = "trackdjs:creamfields:session:v1";
 const DAY_LABELS: Record<string,string> = {"2026-11-14":"Sáb 14 NOV","2026-11-15":"Dom 15 NOV"};
 const VERIFIED_PHOTOS = new Set(["CHARLOTTE DE WITTE","BORIS BREJCHA"]);
 const MAX_SHARED = sets.length;
@@ -135,7 +136,7 @@ export default function CreamfieldsPlanner(){
     }
     if(!resume?.length&&!friendParam&&!compare?.length&&!params.has("lineup")){
       try {
-        const raw=localStorage.getItem(STORAGE_KEY)??localStorage.getItem(LEGACY_KEY);
+        const raw=sessionStorage.getItem(SESSION_KEY)??localStorage.getItem(STORAGE_KEY)??localStorage.getItem(LEGACY_KEY);
         if(raw){
           const data=JSON.parse(raw) as {accepted?:boolean;privacyMode?:boolean;ids?:string[];maybeIds?:string[];noIds?:string[];tastes?:MusicStyle[];nickname?:string;includeNickname?:boolean};
           const valid=new Set(sets.map(s=>s.id));
@@ -153,9 +154,14 @@ export default function CreamfieldsPlanner(){
   },[]);
   useEffect(()=>{
     if(!ready)return;
-    // Saving now requires email. Legacy local lineups can be imported once.
-    try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_KEY);}catch{}
-  },[ready]);
+    // Permanent cloud saving requires email. Optional same-tab continuity
+    // uses sessionStorage only, never the backend.
+    try{
+      localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_KEY);
+      if(!accepted||privacyMode)sessionStorage.removeItem(SESSION_KEY);
+      else sessionStorage.setItem(SESSION_KEY,JSON.stringify({accepted:true,privacyMode:false,ids,maybeIds,noIds,tastes,nickname,includeNickname}));
+    }catch{}
+  },[ready,accepted,privacyMode,ids,maybeIds,noIds,tastes,nickname,includeNickname]);
 
   const attendance=useMemo(()=>{
     const result:AttendanceMap={};
@@ -192,7 +198,7 @@ export default function CreamfieldsPlanner(){
   function toggleTaste(style:MusicStyle){setTastes(v=>v.includes(style)?v.filter(x=>x!==style):[...v,style]);}
   function revoke(){
     setAccepted(false);setAgreementChecked(false);setPrivacyMode(true);setSaveOpen(false);setCartPulse(null);setIds([]);setMaybeIds([]);setNoIds([]);setTastes([]);setNickname("");setIncludeNickname(false);
-    try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_KEY);}catch{}
+    try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_KEY);sessionStorage.removeItem(SESSION_KEY);}catch{}
     setNotice("Selección reiniciada en esta pestaña. Para borrar datos en la nube, contacta con privacidad.");
   }
   async function share(){
@@ -236,11 +242,11 @@ export default function CreamfieldsPlanner(){
       <h2 className="mt-2 text-2xl font-black">Entra a la beta</h2>
       <p className="mt-3 text-sm leading-7 text-zinc-300">Esta herramienta es independiente, no oficial y experimental. Sus horarios podrían cambiar. Comparar lineups mediante enlace revela los sets seleccionados a quien reciba ese enlace. Puedes usarla sin crear una cuenta.</p>
       <label className="mt-5 flex items-start gap-3 text-sm"><input type="checkbox" checked={agreementChecked} onChange={e=>setAgreementChecked(e.target.checked)} className="mt-1 h-5 w-5 accent-lime-300"/><span><b>Acepto participar en la beta.</b> Entiendo sus características experimentales y el carácter no oficial de los horarios.</span></label>
-      <label className="mt-4 flex items-start gap-3 text-sm"><input type="checkbox" checked={privacyMode} onChange={e=>setPrivacyMode(e.target.checked)} className="mt-1 h-5 w-5 accent-lime-300"/><span><b>Modo privado (recomendado).</b> No guardar mi selección, gustos ni aceptación en este navegador. El guardado en la nube requiere mi autorización y correo.</span></label>
+      <label className="mt-4 flex items-start gap-3 text-sm"><input type="checkbox" checked={privacyMode} onChange={e=>setPrivacyMode(e.target.checked)} className="mt-1 h-5 w-5 accent-lime-300"/><span><b>Modo privado (recomendado).</b> No conservar mis datos al cerrar o recargar esta pestaña. Si lo desactivo, la selección se recuerda solo en esta pestaña. Guardar permanentemente requiere correo y consentimiento.</span></label>
       <button type="button" disabled={!agreementChecked} onClick={()=>setAccepted(true)} className="mt-6 w-full rounded-xl bg-[#c4ff75] px-5 py-4 font-black text-[#10161c] disabled:cursor-not-allowed disabled:opacity-40">Crear mi lineup gratis <span aria-hidden="true">↗</span></button>
       <p className="mt-3 text-center text-xs text-zinc-500">Sin pago, sin GPS, sin cuenta obligatoria. El hosting puede procesar datos técnicos de acceso.</p>
     </section>:<>
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.04] p-4 text-xs text-zinc-300"><span className="flex items-center gap-2"><ShieldCheck size={16} /> Sesión de invitado sin guardado automático · Beta no oficial</span><button type="button" className="font-bold text-[#c1ff80] underline underline-offset-4" onClick={revoke}>Reiniciar esta sesión</button></div>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.04] p-4 text-xs text-zinc-300"><span className="flex items-center gap-2"><ShieldCheck size={16} /> {privacyMode?"Sesión privada sin almacenamiento":"Continuidad solo en esta pestaña"} · Beta no oficial</span><button type="button" className="font-bold text-[#c1ff80] underline underline-offset-4" onClick={revoke}>Reiniciar esta sesión</button></div>
       {resumePending&&<div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#caff81]/35 bg-[#caff81]/10 p-4 text-sm"><span>Tu selección volvió desde el enlace del correo. Confirma el guardado en tu cuenta.</span><button type="button" onClick={()=>setSaveOpen(true)} className="rounded-lg bg-[#caff81] px-4 py-2 font-black text-[#0c1a13]">Guardar ahora</button></div>}
       <section aria-label="Tu cartera raver" className="sticky top-0 z-40 -mx-4 mt-4 rounded-2xl border border-[#aaff70]/30 bg-[#0b1420]/95 px-3 py-3 shadow-[0_12px_36px_rgba(0,0,0,.3)] backdrop-blur-xl sm:mx-0 sm:px-5">
         <div className="flex items-center justify-between gap-2 sm:gap-5">
