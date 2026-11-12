@@ -222,7 +222,7 @@ export default function CreamfieldsPlanner(){
       <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-14 h-72 w-72 rounded-full bg-[#c1ff71]/10 blur-3xl"/>
       <p className="relative flex items-center gap-2 text-xs font-black uppercase tracking-[.22em] text-[#bbff7e]"><Sparkles size={16}/> Creamfields Chile · 14–15 Nov 2026</p>
       <h1 className="relative mt-4 max-w-4xl text-5xl font-black leading-[.98] tracking-[-.055em] sm:text-7xl">TU MÚSICA.<br/><span className="bg-gradient-to-r from-[#c4ff75] via-[#75ffdd] to-[#91a9ff] bg-clip-text text-transparent">TU RUTA.</span><br/>TUS AMIGOS.</h1>
-      <p className="relative mt-6 max-w-2xl text-sm leading-7 text-zinc-300 sm:text-lg">Descubre DJs, arma tu agenda, anima tu avatar recorriendo los stages y desafía a tus amigos a encontrar su match.</p>
+      <p className="relative mt-6 max-w-2xl text-sm leading-7 text-zinc-300 sm:text-lg">Descubre DJs, arma tu agenda, mira cómo cambian las luces y escenarios durante el día y desafía a tus amigos a encontrar su match.</p>
       <div className="relative mt-6 flex flex-wrap gap-2 text-xs font-medium text-zinc-200">
         <span className="rounded-full border border-white/15 px-3 py-2">86 sets</span><span className="rounded-full border border-white/15 px-3 py-2">6 escenarios por día</span><span className="rounded-full border border-white/15 px-3 py-2">🎮 Ruta animada</span><span className="rounded-full border border-white/15 px-3 py-2">🔒 Sin registro obligatorio</span>
       </div>
@@ -276,7 +276,7 @@ export default function CreamfieldsPlanner(){
         <div className="rounded-3xl border border-white/10 bg-white/[.035] p-5">
           <p className="text-xs font-bold uppercase tracking-[.2em] text-[#bcff7b]">02 · Tu progreso</p>
           <div className="mt-3 flex items-end gap-3"><span className="text-5xl font-black">{ids.length}</span><span className="pb-2 text-sm text-zinc-400">sets marcados Voy</span></div>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-[#c7ff74] to-[#6ee7e5] transition-all" style={{width:percentage+"%"}}/></div><p className="mt-2 text-xs text-[#caff8c]">Raver Heart {percentage}% · {heart.validSets}/{heart.goal} sets compatibles el {dayName(day)}</p>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-[#c7ff74] to-[#6ee7e5] transition-all" style={{width:percentage+"%"}}/></div><p className="mt-2 text-xs text-[#caff8c]">Raver Heart {percentage}% · {heart.validSets}/{heart.goal} sets sin cruces el {dayName(day)}</p>
           <p className="mt-3 text-sm text-zinc-300">{ids.length===0?"Elige tu primera parada 🎧":ids.length<4?"¡Buen inicio! Tu ruta está tomando forma ✨":ids.length<10?"Tu agenda ya tiene identidad 🔥":"¡Listo para compartir y descubrir coincidencias! 🌟"}</p>
           <div className="mt-5 flex flex-wrap gap-2 text-sm"><span className="rounded-full border border-white/10 px-3 py-2">🤔 Tal vez {maybeIds.length}</span><span className="rounded-full border border-white/10 px-3 py-2">✕ No voy {noIds.length}</span><span className="rounded-full border border-white/10 px-3 py-2">⚡ Sugeridos {myRoute.length}</span></div>
           {knownStyles.length>0&&<p className="mt-4 text-xs text-zinc-400">Tu vibra: {knownStyles.map(s=>s.label).join(" · ")}</p>}
@@ -307,7 +307,14 @@ export default function CreamfieldsPlanner(){
 
       <div className="mt-7 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
         <section>
-          <div className="mb-3 flex items-center justify-between"><h3 className="text-xl font-black">Galería · {visible.length} sets</h3><span className="text-xs text-zinc-400">Toca la portada para marcar Voy</span></div>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-xl font-black">Galería · {visible.length} sets</h3>
+            <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-white/15 bg-white/[.04] px-3 py-2 text-xs text-zinc-300">
+              <input type="checkbox" checked={photoConsent} onChange={e=>setPhotoConsent(e.target.checked)} className="accent-lime-300"/>
+              Mostrar fotos y logos abiertos
+            </label>
+          </div>
+          <p className="mb-3 text-xs text-zinc-500">Toca la portada para marcar Voy. Las imágenes de Wikimedia Commons solo se cargan si lo eliges; la licencia y el origen se muestran en cada ficha.</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
             {visible.map((s,index)=>{
               const value=attendance[s.id];const meta=STAGE_META[s.stage];const styles=getStyles(s.artist);
