@@ -5,7 +5,12 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") ?? "/app/profile";
+  // Never redirect magic-link users to another origin or a protocol-relative URL.
+  const requestedNext = requestUrl.searchParams.get("next") ?? "/app/profile";
+  const next = requestedNext.startsWith("/") &&
+    !requestedNext.startsWith("//") && !requestedNext.includes("\\") &&
+    new URL(requestedNext, requestUrl.origin).origin === requestUrl.origin
+      ? requestedNext : "/app/profile";
 
   if (!code) {
     return NextResponse.redirect(new URL("/login?error=missing_code", requestUrl.origin));
