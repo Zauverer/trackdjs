@@ -9,6 +9,8 @@ import type { FestivalSet } from "@/lib/festival/route-engine";
 
 const AGREEMENT_VERSION = "2026-11-12";
 const FESTIVAL_KEY = "creamfields-chile-2026";
+// Explicit opt-in for production rollout after SQL, redirect and legal checks.
+const CLOUD_SAVE_ENABLED = process.env.NEXT_PUBLIC_FESTIVAL_SAVE_ENABLED === "true";
 type Saved = {
   selected_ids: string[];
   maybe_ids: string[];
@@ -37,7 +39,7 @@ export default function FestivalEmailSave({selected_ids,maybe_ids,no_ids,favorit
   const [saved,setSaved] = useState(false);
   useEffect(()=>{
     let active=true;
-    if(!client){setLoading(false);return;}
+    if(!client||!CLOUD_SAVE_ENABLED){setLoading(false);return;}
     void client.auth.getUser().then(({data,error})=>{
       if(!active)return;
       if(data.user&&!error){setUserId(data.user.id);setUserEmail(data.user.email??"");}
@@ -47,7 +49,7 @@ export default function FestivalEmailSave({selected_ids,maybe_ids,no_ids,favorit
   },[client]);
 
   async function save() {
-    if(!client||!userId||!accepted)return;
+    if(!client||!CLOUD_SAVE_ENABLED||!userId||!accepted)return;
     setBusy(true);setMessage("");
     const ids=sanitize(selected_ids);
     const maybe=sanitize(maybe_ids).filter(id=>!ids.includes(id));
@@ -76,7 +78,7 @@ export default function FestivalEmailSave({selected_ids,maybe_ids,no_ids,favorit
   }
   async function sendLink(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if(!client||!accepted)return;
+    if(!client||!CLOUD_SAVE_ENABLED||!accepted)return;
     setBusy(true);setMessage("");
     const safeEmail=email.trim().toLowerCase();
     const selections=[
@@ -96,7 +98,7 @@ export default function FestivalEmailSave({selected_ids,maybe_ids,no_ids,favorit
     setMessage("Revisa tu correo y abre el enlace. Tu selección viajará en el enlace para que confirmes el guardado cuando regreses.");
   }
   async function restore() {
-    if(!client||!userId)return;
+    if(!client||!CLOUD_SAVE_ENABLED||!userId)return;
     setBusy(true);setMessage("");
     const {data,error}=await client.from("festival_lineups")
       .select("selected_ids,maybe_ids,no_ids,favorite_styles")
@@ -125,7 +127,7 @@ export default function FestivalEmailSave({selected_ids,maybe_ids,no_ids,favorit
         <input type="checkbox" checked={accepted} onChange={e=>setAccepted(e.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-lime-300"/>
         <span>Autorizo expresamente guardar mis sets y preferencias en mi cuenta de TrackDJs, asociada a mi correo. Leí la <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-[#c9ff80]">Política de Privacidad</a> y las <a href="/beta/terms" target="_blank" rel="noopener noreferrer" className="underline text-[#c9ff80]">condiciones beta</a>. Puedo solicitar borrar mis datos.</span>
       </label>
-      {!client?<p className="mt-5 rounded-xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-200">El guardado en la nube aún no está habilitado: falta configurar Supabase en Vercel. Puedes seguir usando el modo invitado.</p>:
+      {!client||!CLOUD_SAVE_ENABLED?<p className="mt-5 rounded-xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-200">El guardado online está en fase de activación. Requiere Supabase, tablas de lineups y aprobación de privacidad. Puedes seguir usando el modo invitado, compartir tu enlace y exportar la agenda.</p>:
       loading?<p className="mt-5 text-sm text-zinc-400">Comprobando tu sesión…</p>:
       userId?<div className="mt-5 space-y-3">
         <p className="flex items-center gap-2 text-sm text-[#c8ff88]"><CheckCircle2 size={18}/> Cuenta verificada: {userEmail||"Acceso por correo"}</p>
