@@ -18,14 +18,15 @@ function overlap(a: FestivalSet, b: FestivalSet) {
   return a.day === b.day && a.start < b.end && b.start < a.end;
 }
 function makeLink(ids: string[]) {
-  const url = new URL("/app/festival/creamfields-2026", window.location.origin);
+  const url = new URL("/creamfields-2026", window.location.origin);
   if (ids.length) url.searchParams.set("lineup", ids.join(","));
   return url.toString();
 }
 function drawPoster(chosen: FestivalSet[]): HTMLCanvasElement {
   const c = document.createElement("canvas");
   c.width = 1080;
-  c.height = Math.max(1350, 420 + chosen.length * 43);
+  const dayCount = new Set(chosen.map((item) => item.day)).size;
+  c.height = Math.max(1350, 525 + chosen.length * 43 + dayCount * 107);
   const ctx = c.getContext("2d");
   if (!ctx) throw new Error("Canvas no disponible");
   const bg = ctx.createLinearGradient(0, 0, 1080, c.height);
@@ -134,10 +135,11 @@ export default function CreamfieldsPlanner() {
     try { await navigator.clipboard.writeText(makeLink(ids)); setNotice("Enlace copiado. Quien lo abra podrá ver el lineup seleccionado."); }
     catch { setNotice("Tu navegador bloqueó la copia; usa Compartir."); }
   }
-  return <main className="mx-auto max-w-6xl px-4 py-8 text-white">
+  return <main className="mx-auto max-w-6xl px-4 py-10 text-white">
     <p className="text-sm font-bold uppercase tracking-[.2em] text-cyan">TrackDJs · Beta independiente no oficial</p>
-    <h1 className="mt-3 text-4xl font-black sm:text-6xl">Tu Creamfields, tu lineup.</h1>
+    <h1 className="mt-3 max-w-4xl bg-gradient-to-r from-white via-[#befcf0] to-[#8de7ff] bg-clip-text text-5xl font-black leading-tight tracking-[-.04em] text-transparent sm:text-7xl">Tu Creamfields, tu lineup.</h1>
     <p className="mt-3 max-w-2xl text-zinc-300">Elige tus sets del 14 y 15 de noviembre de 2026, revisa los cruces y comparte una imagen con tus amigos. No necesitas registrarte.</p>
+    <div className="mt-7 flex flex-wrap gap-2 text-xs text-zinc-300"><span className="rounded-full border border-white/15 px-3 py-2">🎧 86 sets</span><span className="rounded-full border border-white/15 px-3 py-2">📍 8 escenarios</span><span className="rounded-full border border-white/15 px-3 py-2">🔒 Modo privado</span><span className="rounded-full border border-white/15 px-3 py-2">↗ Comparte con amigos</span></div>
     {!accepted ? <section className="mt-8 max-w-3xl rounded-2xl border border-cyan/40 bg-white/[.05] p-5">
       <h2 className="text-xl font-bold">Acuerdo de participación beta</h2>
       <p className="mt-2 text-sm leading-6 text-zinc-300">Esta es una herramienta experimental no oficial. Los horarios son referenciales y pueden modificarse. El lineup que compartas será visible para cualquiera con el enlace. No incluyas datos personales en el enlace. Al continuar aceptas probarla bajo estas condiciones.</p>
