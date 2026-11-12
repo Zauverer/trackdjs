@@ -122,3 +122,35 @@ export function spotifyPlaylistSearch(artist: string) {
 export function soundcloudSetSearch(artist: string) {
   return "https://soundcloud.com/search/sets?q=" + encodeURIComponent(artist);
 }
+
+/**
+ * Verified open-use informational artist wordmarks. Logos can retain trademark
+ * protections even if the file is CC0 or PD-textlogo. Attribution and source
+ * pages remain visible; do not imply the artist endorses TrackDJs.
+ */
+export type OpenArtistLogo = {
+  url: string;
+  sourcePage: string;
+  author: string;
+  license: string;
+  licenseUrl: string;
+  trademarkNotice: boolean;
+};
+export const OPEN_ARTIST_LOGOS: Partial<Record<string, OpenArtistLogo>> = {
+  "CALVIN HARRIS": {
+    url:"https://commons.wikimedia.org/wiki/Special:FilePath/Calvin_Harris_logo2.png?width=500",
+    sourcePage:"https://commons.wikimedia.org/wiki/File:Calvin_Harris_logo2.png",
+    author:"calvinharris.com (subido a Wikimedia Commons)",
+    license:"CC0 1.0",
+    licenseUrl:"https://creativecommons.org/publicdomain/zero/1.0/",
+    trademarkNotice:true
+  },
+  "HARDWELL": {
+    url:"https://commons.wikimedia.org/wiki/Special:FilePath/Hardwell_Logo.png?width=500",
+    sourcePage:"https://commons.wikimedia.org/wiki/File:Hardwell_Logo.png",
+    author:"Hardwell",
+    license:"PD-textlogo (figuras y tipografía simples)",
+    licenseUrl:"https://commons.wikimedia.org/wiki/Commons:Threshold_of_originality",
+    trademarkNotice:true
+  }
+};
