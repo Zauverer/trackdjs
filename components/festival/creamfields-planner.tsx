@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Heart, Headphones, ListMusic, Map, Music2, PlayCircle, Search, Share2, ShoppingBag, SlidersHorizontal, Sparkles, Users } from "lucide-react";
+import { CalendarDays, Check, CircleHelp, Cloud, Headphones, Heart, ListMusic, Map, Music2, PlayCircle, Search, Share2, ShieldCheck, ShoppingBag, SlidersHorizontal, Sparkles, Users, X } from "lucide-react";
 import AnimatedRoute from "@/components/festival/animated-route";
+import PremiumFestivalHero from "@/components/festival/premium-festival-hero";
+import FestivalEmailSave from "@/components/festival/festival-email-save";
+import premiumStyles from "@/components/festival/premium-festival.module.css";
 import festival from "@/lib/festival/creamfields-2026.json";
 import { getStyles, LICENSED_ARTIST_IMAGES, OPEN_ARTIST_LOGOS, STAGE_META, STYLE_OPTIONS, spotifyArtistSearch, soundcloudSetSearch, type Attendance, type MusicStyle } from "@/lib/festival/music-discovery";
 import { calculateMatch, decodeSelection, encodeSelection, getAttendanceConflicts, suggestRoute, type AttendanceMap, type FestivalSet } from "@/lib/festival/route-engine";
@@ -101,6 +104,8 @@ export default function CreamfieldsPlanner(){
   const [notice,setNotice]=useState("");
   const [cartPulse,setCartPulse]=useState<{seq:number;label:string}|null>(null);
   const [ready,setReady]=useState(false);
+  const [saveOpen,setSaveOpen]=useState(false);
+  const [resumePending,setResumePending]=useState(false);
   useEffect(()=>{
     if(!cartPulse)return;
     const timer=window.setTimeout(()=>setCartPulse(null),950);
@@ -109,9 +114,15 @@ export default function CreamfieldsPlanner(){
 
   useEffect(()=>{
     const params=new URLSearchParams(window.location.search);
+    const resume=params.get("resume")?.split(".");
     const friendParam=params.get("invite");
     const compare=params.get("compare")?.split(".");
-    if(friendParam){
+    if(resume?.length===3){
+      setIds(decodeSelection(resume[0],sets));
+      setMaybeIds(decodeSelection(resume[1],sets));
+      setNoIds(decodeSelection(resume[2],sets));
+      setResumePending(true);
+    }else if(friendParam){
       setFriendIds(decodeSelection(friendParam,sets));
       setFriendName(safeNickname(params.get("n")??"")||"Tu amigo");
     }else if(compare?.length===2){
@@ -122,7 +133,7 @@ export default function CreamfieldsPlanner(){
       const valid=new Set(sets.map(s=>s.id));
       setIds([...(new Set((params.get("lineup")??"").split(",").filter(id=>valid.has(id))))].slice(0,MAX_SHARED));
     }
-    if(!compare?.length&&!params.has("lineup")){
+    if(!resume?.length&&!friendParam&&!compare?.length&&!params.has("lineup")){
       try {
         const raw=localStorage.getItem(STORAGE_KEY)??localStorage.getItem(LEGACY_KEY);
         if(raw){
@@ -142,15 +153,9 @@ export default function CreamfieldsPlanner(){
   },[]);
   useEffect(()=>{
     if(!ready)return;
-    try {
-      if(!accepted||privacyMode){
-        localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_KEY);
-      }else{
-        localStorage.setItem(STORAGE_KEY,JSON.stringify({accepted:true,privacyMode:false,ids,maybeIds,noIds,tastes,nickname,includeNickname}));
-        localStorage.removeItem(LEGACY_KEY);
-      }
-    }catch{setNotice("No se puede guardar en este navegador. Usa Compartir o el calendario.");}
-  },[ready,accepted,privacyMode,ids,maybeIds,noIds,tastes,nickname,includeNickname]);
+    // Saving now requires email. Legacy local lineups can be imported once.
+    try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_KEY);}catch{}
+  },[ready]);
 
   const attendance=useMemo(()=>{
     const result:AttendanceMap={};
@@ -186,9 +191,9 @@ export default function CreamfieldsPlanner(){
   }
   function toggleTaste(style:MusicStyle){setTastes(v=>v.includes(style)?v.filter(x=>x!==style):[...v,style]);}
   function revoke(){
-    setAccepted(false);setAgreementChecked(false);setPrivacyMode(true);setCartPulse(null);setIds([]);setMaybeIds([]);setNoIds([]);setTastes([]);setNickname("");setIncludeNickname(false);
+    setAccepted(false);setAgreementChecked(false);setPrivacyMode(true);setSaveOpen(false);setCartPulse(null);setIds([]);setMaybeIds([]);setNoIds([]);setTastes([]);setNickname("");setIncludeNickname(false);
     try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_KEY);}catch{}
-    setNotice("Se eliminó la selección guardada en este navegador.");
+    setNotice("Selección reiniciada en esta pestaña. Para borrar datos en la nube, contacta con privacidad.");
   }
   async function share(){
     if(!selected.length){setNotice("Marca Voy al menos en un set para invitar a tus amigos.");return;}
@@ -218,26 +223,25 @@ export default function CreamfieldsPlanner(){
   }
 
   return <main className="mx-auto max-w-7xl px-4 pb-20 pt-8 text-white sm:pt-12">
-    <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#1b173a] via-[#071620] to-[#101020] px-5 py-8 sm:px-10 sm:py-12">
-      <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-14 h-72 w-72 rounded-full bg-[#c1ff71]/10 blur-3xl"/>
-      <p className="relative flex items-center gap-2 text-xs font-black uppercase tracking-[.22em] text-[#bbff7e]"><Sparkles size={16}/> Creamfields Chile · 14–15 Nov 2026</p>
-      <h1 className="relative mt-4 max-w-4xl text-5xl font-black leading-[.98] tracking-[-.055em] sm:text-7xl">TU MÚSICA.<br/><span className="bg-gradient-to-r from-[#c4ff75] via-[#75ffdd] to-[#91a9ff] bg-clip-text text-transparent">TU RUTA.</span><br/>TUS AMIGOS.</h1>
-      <p className="relative mt-6 max-w-2xl text-sm leading-7 text-zinc-300 sm:text-lg">Descubre DJs, arma tu agenda, mira cómo cambian las luces y escenarios durante el día y desafía a tus amigos a encontrar su match.</p>
-      <div className="relative mt-6 flex flex-wrap gap-2 text-xs font-medium text-zinc-200">
-        <span className="rounded-full border border-white/15 px-3 py-2">86 sets</span><span className="rounded-full border border-white/15 px-3 py-2">6 escenarios por día</span><span className="rounded-full border border-white/15 px-3 py-2">🎮 Ruta animada</span><span className="rounded-full border border-white/15 px-3 py-2">🔒 Sin registro obligatorio</span>
-      </div>
-    </div>
+    <PremiumFestivalHero day={day} stages={stages} selectedStage={stageFilter==="all"?stages[0]:stageFilter}
+      selectedCount={ids.length} coverage={percentage}
+      onDayChange={next=>{setDay(next);setStageFilter("all");}}
+      onStageChange={stage=>{setStageFilter(stage);setView("gallery");}}
+      onOpenArtists={()=>{document.getElementById(accepted?"artist-gallery":"beta-agreement")?.scrollIntoView({behavior:"smooth",block:"start"});}}
+      onSave={()=>{if(!accepted){document.getElementById("beta-agreement")?.scrollIntoView({behavior:"smooth",block:"center"});setNotice("Acepta las condiciones beta antes de guardar.");}else setSaveOpen(true);}}
+    />
 
-    {!accepted?<section className="mx-auto mt-8 max-w-3xl rounded-3xl border border-[#c5ff79]/30 bg-white/[.05] p-5 sm:p-7">
+    {!accepted?<section id="beta-agreement" className="mx-auto mt-8 scroll-mt-24 max-w-3xl rounded-3xl border border-[#c5ff79]/30 bg-white/[.05] p-5 sm:p-7">
       <p className="text-xs font-bold uppercase tracking-[.18em] text-[#c8ff90]">1 minuto para empezar</p>
       <h2 className="mt-2 text-2xl font-black">Entra a la beta</h2>
       <p className="mt-3 text-sm leading-7 text-zinc-300">Esta herramienta es independiente, no oficial y experimental. Sus horarios podrían cambiar. Comparar lineups mediante enlace revela los sets seleccionados a quien reciba ese enlace. Puedes usarla sin crear una cuenta.</p>
       <label className="mt-5 flex items-start gap-3 text-sm"><input type="checkbox" checked={agreementChecked} onChange={e=>setAgreementChecked(e.target.checked)} className="mt-1 h-5 w-5 accent-lime-300"/><span><b>Acepto participar en la beta.</b> Entiendo sus características experimentales y el carácter no oficial de los horarios.</span></label>
-      <label className="mt-4 flex items-start gap-3 text-sm"><input type="checkbox" checked={privacyMode} onChange={e=>setPrivacyMode(e.target.checked)} className="mt-1 h-5 w-5 accent-lime-300"/><span><b>Modo privado (recomendado).</b> No guardar mi selección, gustos ni aceptación en este navegador. La imagen y la ruta se generan localmente.</span></label>
+      <label className="mt-4 flex items-start gap-3 text-sm"><input type="checkbox" checked={privacyMode} onChange={e=>setPrivacyMode(e.target.checked)} className="mt-1 h-5 w-5 accent-lime-300"/><span><b>Modo privado (recomendado).</b> No guardar mi selección, gustos ni aceptación en este navegador. El guardado en la nube requiere mi autorización y correo.</span></label>
       <button type="button" disabled={!agreementChecked} onClick={()=>setAccepted(true)} className="mt-6 w-full rounded-xl bg-[#c4ff75] px-5 py-4 font-black text-[#10161c] disabled:cursor-not-allowed disabled:opacity-40">Crear mi lineup gratis <span aria-hidden="true">↗</span></button>
       <p className="mt-3 text-center text-xs text-zinc-500">Sin pago, sin GPS, sin cuenta obligatoria. El hosting puede procesar datos técnicos de acceso.</p>
     </section>:<>
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.04] p-4 text-xs text-zinc-300"><span>🔒 {privacyMode?"Modo privado: sin guardar datos locales":"Guardado exclusivamente en este dispositivo"} · Beta no oficial</span><button type="button" className="font-bold text-[#c1ff80] underline underline-offset-4" onClick={revoke}>Revocar y borrar</button></div>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.04] p-4 text-xs text-zinc-300"><span className="flex items-center gap-2"><ShieldCheck size={16} /> Sesión de invitado sin guardado automático · Beta no oficial</span><button type="button" className="font-bold text-[#c1ff80] underline underline-offset-4" onClick={revoke}>Reiniciar esta sesión</button></div>
+      {resumePending&&<div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#caff81]/35 bg-[#caff81]/10 p-4 text-sm"><span>Tu selección volvió desde el enlace del correo. Confirma el guardado en tu cuenta.</span><button type="button" onClick={()=>setSaveOpen(true)} className="rounded-lg bg-[#caff81] px-4 py-2 font-black text-[#0c1a13]">Guardar ahora</button></div>}
       <section aria-label="Tu cartera raver" className="sticky top-0 z-40 -mx-4 mt-4 rounded-2xl border border-[#aaff70]/30 bg-[#0b1420]/95 px-3 py-3 shadow-[0_12px_36px_rgba(0,0,0,.3)] backdrop-blur-xl sm:mx-0 sm:px-5">
         <div className="flex items-center justify-between gap-2 sm:gap-5">
           <button type="button" onClick={()=>document.getElementById("my-lineup")?.scrollIntoView({behavior:"smooth",block:"center"})} className="relative flex min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-3 py-2 text-left" aria-label={"Abrir mi cartera, "+ids.length+" sets guardados"}>
@@ -285,7 +289,7 @@ export default function CreamfieldsPlanner(){
         </div>
       </section>
 
-      <div className="mt-9 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.2em] text-[#c3ff75]">03 · Explora</p><h2 className="mt-1 text-3xl font-black">Los artistas y stages</h2></div><button type="button" onClick={()=>setShowAnimation(v=>!v)} className="inline-flex items-center gap-2 rounded-xl bg-[#c7ff75] px-5 py-3 font-black text-[#07170e]"><PlayCircle size={20}/>{showAnimation?"Ocultar animación":"Animar mi ruta"}</button></div>
+      <div id="artist-gallery" className="mt-9 scroll-mt-24 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.2em] text-[#c3ff75]">03 · Explora</p><h2 className="mt-1 text-3xl font-black">Los artistas y stages</h2></div><button type="button" onClick={()=>setShowAnimation(v=>!v)} className="inline-flex items-center gap-2 rounded-xl bg-[#c7ff75] px-5 py-3 font-black text-[#07170e]"><PlayCircle size={20}/>{showAnimation?"Ocultar animación":"Animar mi ruta"}</button></div>
       <div className="mt-4 flex flex-wrap gap-2">
         {festival.dates.map(d=><button key={d} type="button" onClick={()=>{setDay(d);setStageFilter("all");}} className={"rounded-xl px-5 py-3 text-sm font-extrabold "+(day===d?"bg-[#c5ff79] text-[#0d1512]":"border border-white/15 text-white")}>{dayName(d)}</button>)}
         <button type="button" onClick={()=>setView("gallery")} className={"inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm "+(view==="gallery"?"bg-white/15":"border border-white/10")}><Music2 size={17}/> Galería</button>
@@ -324,14 +328,15 @@ export default function CreamfieldsPlanner(){
               const logo=photoConsent?OPEN_ARTIST_LOGOS[s.artist]:undefined;
               return <article key={s.id} className={"overflow-hidden rounded-2xl border bg-[#0f1524] transition "+(value==="voy"?"border-[#bbff79] shadow-[0_0_0_1px_rgba(190,255,120,.25)]":"border-white/10")}>
                 <button type="button" draggable onDragStart={e=>e.dataTransfer.setData("text/plain",s.id)} onClick={()=>setAttendance(s.id,value==="voy"?undefined:"voy")} className="relative flex aspect-[4/5] w-full flex-col items-start justify-between overflow-hidden p-3 text-left" style={{backgroundImage:photo?"linear-gradient(0deg,rgba(8,10,22,.95),rgba(8,10,22,.1) 65%),url('"+photo.url+"')":ART_PALETTES[index%ART_PALETTES.length],backgroundSize:"cover",backgroundPosition:"center"}}>
+                  <span className={premiumStyles.thumbnail} data-tone={styles[0]??"edm"} aria-hidden="true"/>
                   <span className="relative rounded-full border border-white/25 bg-black/30 px-2 py-1 text-[10px] font-bold">{s.start}–{s.end}</span>
                   {!photo&&<span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-6xl font-black tracking-[-.08em] text-white/10">{initials(s.artist)}</span>}
                   {logo&&<span aria-hidden="true" className="absolute inset-x-3 top-1/3 flex -translate-y-1/2 items-center justify-center rounded-xl bg-white/90 p-3 shadow-lg"><img src={logo.url} alt="" loading="lazy" className="max-h-20 max-w-full object-contain" referrerPolicy="no-referrer"/></span>}
                   <span className="relative mt-auto block"><span className="block text-lg font-black leading-tight sm:text-xl">{s.artist}</span><span className="mt-1 block text-[10px] font-bold tracking-wide" style={{color:meta?.accent??"#fff"}}>{s.stage}</span></span>
-                  <span className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-1 text-xs">{value==="voy"?"💚":value==="talvez"?"🤔":value==="no"?"✕":"＋"}</span>
+                  <span className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full border border-white/25 bg-black/65 text-white">{value==="voy"?<Check size={17} strokeWidth={3}/>:value==="talvez"?<CircleHelp size={17}/>:value==="no"?<X size={17}/>:<span className="text-xl font-light">+</span>}</span>
                 </button>
                 <div className="flex flex-wrap gap-1 p-2">{styles.length?styles.map(style=><button key={style} type="button" onClick={()=>setStyleFilter(style)} className="rounded-full bg-white/10 px-2 py-1 text-[10px] text-zinc-300">#{style}</button>):<span className="px-1 text-[10px] text-zinc-500">Estilo por verificar</span>}</div>
-                <div className="grid grid-cols-3 gap-1 px-2 pb-2">{([["voy","💚 Voy"],["talvez","🤔 Quizá"],["no","✕ No"]] as const).map(([status,text])=><button key={status} type="button" aria-pressed={value===status} onClick={()=>setAttendance(s.id,value===status?undefined:status)} className={"rounded-lg px-1 py-2 text-[11px] font-bold "+(value===status?"bg-[#bfff76] text-[#0a1713]":"bg-white/10 text-zinc-200")}>{text}</button>)}</div>
+                <div className="grid grid-cols-3 gap-1 px-2 pb-2">{([["voy","Voy"],["talvez","Quizá"],["no","No"]] as const).map(([status,text])=><button key={status} type="button" aria-pressed={value===status} onClick={()=>setAttendance(s.id,value===status?undefined:status)} className={"flex items-center justify-center gap-1 rounded-lg px-1 py-2 text-[11px] font-bold "+(value===status?"bg-[#bfff76] text-[#0a1713]":"bg-white/10 text-zinc-200")}>{status==="voy"?<Check size={12}/>:status==="talvez"?<CircleHelp size={12}/>:<X size={12}/>} {text}</button>)}</div>
                 <div className="flex flex-wrap justify-between gap-1 border-t border-white/10 px-3 py-2 text-[11px] text-zinc-300"><a href={spotifyArtistSearch(s.artist)} target="_blank" rel="noopener noreferrer" className="hover:text-white">♫ Spotify ↗</a><a href={soundcloudSetSearch(s.artist)} target="_blank" rel="noopener noreferrer" className="hover:text-white">Sets ↗</a><a href={googleCalendarUrl(s)} target="_blank" rel="noopener noreferrer" title="Agregar set a Google Calendar" className="hover:text-white">＋ Agenda ↗</a></div>
                 {photo&&<a href={photo.filePage} target="_blank" rel="noopener noreferrer" className="block px-3 pb-2 text-[9px] text-zinc-500">Foto: {photo.credit} · {photo.license} ↗</a>}
                 {logo&&<a href={logo.sourcePage} target="_blank" rel="noopener noreferrer" className="block px-3 pb-2 text-[9px] text-zinc-400">Logo: {logo.author} · {logo.license} · Marca del artista ↗</a>}
@@ -347,7 +352,7 @@ export default function CreamfieldsPlanner(){
           <div className="mt-4 max-h-80 space-y-2 overflow-y-auto">{selected.length?selected.map(s=><div key={s.id} className="flex items-start justify-between gap-2 rounded-xl bg-white/[.05] p-3 text-sm"><span><span className="text-xs text-zinc-400">{dayName(s.day)} · {s.start}–{s.end}</span><b className="mt-1 block">{s.artist}</b><span className="text-xs text-zinc-500">{s.stage}</span></span><button type="button" className="rounded-full p-1 text-[#baff81]" aria-label={"Quitar "+s.artist} onClick={()=>setAttendance(s.id,undefined)}>✕</button></div>):<p className="rounded-xl border border-dashed border-white/15 p-4 text-sm text-zinc-400">Tu aventura comienza eligiendo un DJ o un estilo musical.</p>}</div>
           {!!conflicts.length&&<div className="mt-4 rounded-xl border border-amber-500/40 bg-amber-950/20 p-3"><p className="text-sm font-bold text-amber-200">⚠️ {conflicts.length} conflictos de horario</p>{conflicts.slice(0,3).map((c,index)=><p key={index} className="mt-2 text-xs text-zinc-300">{c.first.artist} ↔ {c.second.artist}</p>)}</div>}
           <div className="mt-4 rounded-xl border border-white/10 p-3"><div className="flex items-center gap-2 text-sm font-bold"><Sparkles size={17} className="text-[#c5ff78]"/> Ruta inteligente</div><p className="mt-2 text-xs leading-5 text-zinc-400">{myRoute.length} sets compatibles este día, priorizando tus gustos y evitando superposiciones. No calcula distancias reales entre stages.</p><button type="button" onClick={()=>{setShowAnimation(true);window.setTimeout(()=>document.getElementById("animated-route")?.scrollIntoView({behavior:"smooth",block:"start"}),50);}} className="mt-3 w-full rounded-lg border border-[#c8ff7d]/40 px-3 py-2 text-sm font-bold text-[#c8ff7d]">▶ Animar mi ruta</button></div>
-          <div className="mt-5 flex flex-col gap-2"><button type="button" onClick={share} disabled={!ids.length} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#c6ff73] px-4 py-3 font-black text-[#08120c] disabled:opacity-40"><Share2 size={18}/> Compartir reto por WhatsApp</button><button type="button" onClick={copyLink} disabled={!ids.length} className="rounded-xl border border-white/20 p-3 text-sm disabled:opacity-40">Copiar enlace de invitación</button><button type="button" onClick={()=>downloadIcs(selected)} disabled={!selected.length} className="flex items-center justify-center gap-2 rounded-xl border border-white/20 p-3 text-sm disabled:opacity-40"><CalendarDays size={18}/> Agenda + alerta 15 min (ICS)</button><button type="button" onClick={()=>{if(!selected.length)return;void downloadPoster(selected,includeNickname?nickname:"").then(()=>setNotice("Imagen descargada")).catch(()=>setNotice("No se pudo crear el PNG"));}} disabled={!selected.length} className="rounded-xl border border-white/20 p-3 text-sm disabled:opacity-40">Descargar imagen PNG</button></div>
+          <div className="mt-5 flex flex-col gap-2"><button type="button" onClick={()=>setSaveOpen(true)} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#c7ff81]/45 bg-[#c7ff81]/10 px-4 py-3 font-black text-[#d9ffba]"><Cloud size={18}/> Guardar en mi cuenta · solo correo</button><button type="button" onClick={share} disabled={!ids.length} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#c6ff73] px-4 py-3 font-black text-[#08120c] disabled:opacity-40"><Share2 size={18}/> Compartir reto por WhatsApp</button><button type="button" onClick={copyLink} disabled={!ids.length} className="rounded-xl border border-white/20 p-3 text-sm disabled:opacity-40">Copiar enlace de invitación</button><button type="button" onClick={()=>downloadIcs(selected)} disabled={!selected.length} className="flex items-center justify-center gap-2 rounded-xl border border-white/20 p-3 text-sm disabled:opacity-40"><CalendarDays size={18}/> Agenda + alerta 15 min (ICS)</button><button type="button" onClick={()=>{if(!selected.length)return;void downloadPoster(selected,includeNickname?nickname:"").then(()=>setNotice("Imagen descargada")).catch(()=>setNotice("No se pudo crear el PNG"));}} disabled={!selected.length} className="rounded-xl border border-white/20 p-3 text-sm disabled:opacity-40">Descargar imagen PNG</button></div>
           <label className="mt-5 block text-xs text-zinc-400">Apodo opcional para invitar<input maxLength={22} value={nickname} onChange={e=>setNickname(safeNickname(e.target.value))} placeholder="Mi alias raver" className="mt-2 min-h-11 w-full rounded-lg border border-white/20 bg-white/[.04] px-3 text-sm text-white outline-none"/></label>
           <label className="mt-3 flex items-start gap-2 text-xs text-zinc-400"><input type="checkbox" checked={includeNickname} onChange={e=>setIncludeNickname(e.target.checked)} className="mt-0.5 accent-lime-300"/> Incluir mi apodo en el enlace y la imagen al compartir.</label>
           <p className="mt-4 text-xs leading-5 text-zinc-500">Cada amigo decide si participa. El enlace solo contiene los sets seleccionados y el apodo si lo autorizas. No se crean cuentas de terceros.</p>
@@ -359,6 +364,7 @@ export default function CreamfieldsPlanner(){
         <div><ListMusic className="text-[#c1ff77]"/><h3 className="mt-2 font-bold">Llévate tu agenda</h3><p className="mt-2 text-sm text-zinc-400">Exporta tus sets como calendario ICS con recordatorios. Google Calendar permite agregar cada presentación.</p></div>
       </section>
     </>}
+    {saveOpen&&accepted&&<FestivalEmailSave selected_ids={ids} maybe_ids={maybeIds} no_ids={noIds} favorite_styles={tastes} onClose={()=>setSaveOpen(false)} onRestore={data=>{setIds(data.selected_ids);setMaybeIds(data.maybe_ids);setNoIds(data.no_ids);setTastes(data.favorite_styles.filter(t=>STYLE_OPTIONS.some(s=>s.key===t)) as MusicStyle[]);setResumePending(false);}}/>}
     {notice&&<p role="status" className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-xl rounded-xl border border-[#baff7e]/40 bg-[#111e23] p-4 text-sm text-[#d5ffbc] shadow-xl">{notice} <button type="button" className="ml-3 underline" onClick={()=>setNotice("")}>Cerrar</button></p>}
     <footer className="mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-zinc-500"><span>TrackDJs · Creamfields Chile 2026 · Aplicación independiente no oficial. Confirma los horarios antes del evento.</span><a href="/app" className="font-bold text-[#bdff82]">Explorar TrackDJs global ↗</a></footer>
   </main>;
