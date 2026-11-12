@@ -183,9 +183,10 @@ export default function AnimatedRoute({day, allSets, attendance, tastes}:Props){
         stream.getTracks().forEach(t=>t.stop());
         exportingRef.current=false;setExporting(false);
         if(!chunks.length){setMessage("El navegador no pudo generar el video.");draw(progress);return;}
-        const url=URL.createObjectURL(new Blob(chunks,{type:"video/webm"}));
+        const url=URL.createObjectURL(new Blob(chunks,{type:mime}));
         const link=document.createElement("a");link.href=url;
-        const extension=mime.startsWith("video/mp4")?"mp4":"webm";\n        link.download="trackdjs-creamfields-ruta-"+day+"."+extension;
+        const extension=mime.startsWith("video/mp4")?"mp4":"webm";
+        link.download="trackdjs-creamfields-ruta-"+day+"."+extension;
         link.click();window.setTimeout(()=>URL.revokeObjectURL(url),30000);
         setMessage("Video descargado. Si WhatsApp no admite su formato, compártelo como archivo o utiliza la animación interactiva.");
         draw(progress);
