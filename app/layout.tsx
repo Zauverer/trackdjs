@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/next";
-import { AuthProvider } from "@/components/auth-provider";
+import { PrivacyAwareShell } from "@/components/privacy-aware-shell";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
@@ -40,8 +39,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es">
       <body className="antialiased">
-        <AuthProvider>{children}</AuthProvider>
-        <Analytics />
+        <PrivacyAwareShell>{children}</PrivacyAwareShell>
       </body>
     </html>
   );

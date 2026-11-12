@@ -7,6 +7,11 @@ export async function middleware(request: NextRequest) {
   const canonicalResponse = redirectToCanonicalHost(request);
   if (canonicalResponse) return canonicalResponse;
 
+  // Do not initialize Supabase or read auth cookies for private guest festival routes.
+  if (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/creamfields-2026") {
+    return NextResponse.next({ request });
+  }
+
   const env = getSupabaseEnv();
   if (!env) return NextResponse.next({ request });
 

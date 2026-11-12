@@ -1,0 +1,702 @@
+{
+  "event": "Creamfields Chile 2026",
+  "dates": [
+    "2026-11-14",
+    "2026-11-15"
+  ],
+  "timezone": "America/Santiago",
+  "location": "Club Hípico, Santiago, Chile",
+  "unofficial": true,
+  "source": "Transcripción de cartel entregado 11-11-2026; verificar cambios oficiales antes del evento.",
+  "sets": [
+    {
+      "id": "cfcl2026-20261114-main-stage-dj-arloz",
+      "day": "2026-11-14",
+      "stage": "MAIN STAGE",
+      "artist": "DJ ARLOZ",
+      "start": "13:00",
+      "end": "13:55"
+    },
+    {
+      "id": "cfcl2026-20261114-main-stage-carla-valenti",
+      "day": "2026-11-14",
+      "stage": "MAIN STAGE",
+      "artist": "CARLA VALENTI",
+      "start": "13:55",
+      "end": "14:50"
+    },
+    {
+      "id": "cfcl2026-20261114-main-stage-aerobica",
+      "day": "2026-11-14",
+      "stage": "MAIN STAGE",
+      "artist": "AEROBICA",
+      "start": "14:50",
+      "end": "15:45"
+    },
+    {
+      "id": "cfcl2026-20261114-main-stage-lp-giobbi",
+      "day": "2026-11-14",
+      "stage": "MAIN STAGE",
+      "artist": "LP GIOBBI",
+      "start": "15:45",
+      "end": "16:40"
+    },
+    {
+      "id": "cfcl2026-20261114-main-stage-morten",
+      "day": "2026-11-14",
+      "stage": "MAIN STAGE",
+      "artist": "MORTEN",
+      "start": "16:45",
+      "end": "18:00"
+    },
+    {
+      "id": "cfcl2026-20261114-main-stage-lost-frequencies",
+      "day": "2026-11-14",
+      "stage": "MAIN STAGE",
+      "artist": "LOST FREQUENCIES",
+      "start": "18:05",
+      "end": "19:20"
+    },
+    {
+      "id": "cfcl2026-20261114-main-stage-boris-brejcha",
+      "day": "2026-11-14",
+      "stage": "MAIN STAGE",
+      "artist": "BORIS BREJCHA",
+      "start": "19:30",
+      "end": "21:15"
+    },
+    {
+      "id": "cfcl2026-20261114-main-stage-hardwell",
+      "day": "2026-11-14",
+      "stage": "MAIN STAGE",
+      "artist": "HARDWELL",
+      "start": "21:30",
+      "end": "23:00"
+    },
+    {
+      "id": "cfcl2026-20261114-a-stage-javica",
+      "day": "2026-11-14",
+      "stage": "A STAGE",
+      "artist": "JAVICA",
+      "start": "13:00",
+      "end": "14:00"
+    },
+    {
+      "id": "cfcl2026-20261114-a-stage-alexander-robledo",
+      "day": "2026-11-14",
+      "stage": "A STAGE",
+      "artist": "ALEXANDER ROBLEDO",
+      "start": "14:00",
+      "end": "15:00"
+    },
+    {
+      "id": "cfcl2026-20261114-a-stage-groovearth",
+      "day": "2026-11-14",
+      "stage": "A STAGE",
+      "artist": "GROOVEARTH",
+      "start": "15:00",
+      "end": "16:00"
+    },
+    {
+      "id": "cfcl2026-20261114-a-stage-bruno-martini",
+      "day": "2026-11-14",
+      "stage": "A STAGE",
+      "artist": "BRUNO MARTINI",
+      "start": "16:00",
+      "end": "17:15"
+    },
+    {
+      "id": "cfcl2026-20261114-a-stage-mattn",
+      "day": "2026-11-14",
+      "stage": "A STAGE",
+      "artist": "MATTN",
+      "start": "17:15",
+      "end": "18:30"
+    },
+    {
+      "id": "cfcl2026-20261114-a-stage-two-friends",
+      "day": "2026-11-14",
+      "stage": "A STAGE",
+      "artist": "TWO FRIENDS",
+      "start": "18:30",
+      "end": "20:00"
+    },
+    {
+      "id": "cfcl2026-20261114-a-stage-jonas-blue",
+      "day": "2026-11-14",
+      "stage": "A STAGE",
+      "artist": "JONAS BLUE",
+      "start": "20:00",
+      "end": "21:30"
+    },
+    {
+      "id": "cfcl2026-20261114-a-stage-don-diablo",
+      "day": "2026-11-14",
+      "stage": "A STAGE",
+      "artist": "DON DIABLO",
+      "start": "21:30",
+      "end": "23:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-jokerz",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "JOKERZ",
+      "start": "13:00",
+      "end": "14:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-rebelnoise",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "REBELNOISE",
+      "start": "14:00",
+      "end": "15:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-stmz",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "STMZ",
+      "start": "15:00",
+      "end": "16:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-virtual-riot",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "VIRTUAL RIOT",
+      "start": "16:00",
+      "end": "17:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-bass-modulators",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "BASS MODULATORS",
+      "start": "17:00",
+      "end": "18:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-mutilator",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "MUTILATOR",
+      "start": "18:00",
+      "end": "19:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-the-straikerz",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "THE STRAIKERZ",
+      "start": "19:00",
+      "end": "20:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-brennan-heart",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "BRENNAN HEART",
+      "start": "20:00",
+      "end": "21:00"
+    },
+    {
+      "id": "cfcl2026-20261114-alternative-warface",
+      "day": "2026-11-14",
+      "stage": "ALTERNATIVE",
+      "artist": "WARFACE",
+      "start": "21:00",
+      "end": "22:00"
+    },
+    {
+      "id": "cfcl2026-20261114-he-she-they-superqueer-b2b-giullian",
+      "day": "2026-11-14",
+      "stage": "HE.SHE.THEY",
+      "artist": "SUPERQUEER B2B GIULLIAN",
+      "start": "13:00",
+      "end": "14:30"
+    },
+    {
+      "id": "cfcl2026-20261114-he-she-they-em11",
+      "day": "2026-11-14",
+      "stage": "HE.SHE.THEY",
+      "artist": "EM11",
+      "start": "14:30",
+      "end": "15:25"
+    },
+    {
+      "id": "cfcl2026-20261114-he-she-they-yanamaste",
+      "day": "2026-11-14",
+      "stage": "HE.SHE.THEY",
+      "artist": "YANAMASTE",
+      "start": "15:30",
+      "end": "17:00"
+    },
+    {
+      "id": "cfcl2026-20261114-he-she-they-clara-cuve",
+      "day": "2026-11-14",
+      "stage": "HE.SHE.THEY",
+      "artist": "CLARA CUVÉ",
+      "start": "17:00",
+      "end": "18:30"
+    },
+    {
+      "id": "cfcl2026-20261114-he-she-they-charlie-sparks",
+      "day": "2026-11-14",
+      "stage": "HE.SHE.THEY",
+      "artist": "CHARLIE SPARKS",
+      "start": "18:30",
+      "end": "20:00"
+    },
+    {
+      "id": "cfcl2026-20261114-he-she-they-cristobal-pesce",
+      "day": "2026-11-14",
+      "stage": "HE.SHE.THEY",
+      "artist": "CRISTOBAL PESCE",
+      "start": "20:00",
+      "end": "21:30"
+    },
+    {
+      "id": "cfcl2026-20261114-he-she-they-azyr",
+      "day": "2026-11-14",
+      "stage": "HE.SHE.THEY",
+      "artist": "AZYR",
+      "start": "21:30",
+      "end": "23:00"
+    },
+    {
+      "id": "cfcl2026-20261114-radio-carolina-arayko",
+      "day": "2026-11-14",
+      "stage": "RADIO CAROLINA",
+      "artist": "ARAYKO",
+      "start": "13:00",
+      "end": "14:00"
+    },
+    {
+      "id": "cfcl2026-20261114-radio-carolina-gaby-yavar",
+      "day": "2026-11-14",
+      "stage": "RADIO CAROLINA",
+      "artist": "GABY YAVAR",
+      "start": "14:00",
+      "end": "15:00"
+    },
+    {
+      "id": "cfcl2026-20261114-radio-carolina-turbangirll",
+      "day": "2026-11-14",
+      "stage": "RADIO CAROLINA",
+      "artist": "TURBANGIRLL",
+      "start": "15:00",
+      "end": "16:00"
+    },
+    {
+      "id": "cfcl2026-20261114-radio-carolina-bruno-bona",
+      "day": "2026-11-14",
+      "stage": "RADIO CAROLINA",
+      "artist": "BRUNO BONA",
+      "start": "16:00",
+      "end": "17:00"
+    },
+    {
+      "id": "cfcl2026-20261114-radio-carolina-osvaldo-solorza",
+      "day": "2026-11-14",
+      "stage": "RADIO CAROLINA",
+      "artist": "OSVALDO SOLORZA",
+      "start": "17:00",
+      "end": "18:00"
+    },
+    {
+      "id": "cfcl2026-20261114-radio-carolina-nico-ferrada",
+      "day": "2026-11-14",
+      "stage": "RADIO CAROLINA",
+      "artist": "NICO FERRADA",
+      "start": "18:00",
+      "end": "19:00"
+    },
+    {
+      "id": "cfcl2026-20261114-radio-carolina-saulo",
+      "day": "2026-11-14",
+      "stage": "RADIO CAROLINA",
+      "artist": "SAULO",
+      "start": "19:00",
+      "end": "20:00"
+    },
+    {
+      "id": "cfcl2026-20261114-radio-carolina-gonzalo-vallejo-b2b-natalia-pastor",
+      "day": "2026-11-14",
+      "stage": "RADIO CAROLINA",
+      "artist": "GONZALO VALLEJO B2B NATALIA PASTOR",
+      "start": "20:00",
+      "end": "21:00"
+    },
+    {
+      "id": "cfcl2026-20261114-grieta-x-panal-records-bele-cox",
+      "day": "2026-11-14",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "BELE COX",
+      "start": "13:00",
+      "end": "15:00"
+    },
+    {
+      "id": "cfcl2026-20261114-grieta-x-panal-records-nara-back",
+      "day": "2026-11-14",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "NARA BACK",
+      "start": "15:00",
+      "end": "16:30"
+    },
+    {
+      "id": "cfcl2026-20261114-grieta-x-panal-records-fantasna",
+      "day": "2026-11-14",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "FANTASNA",
+      "start": "16:30",
+      "end": "18:00"
+    },
+    {
+      "id": "cfcl2026-20261114-grieta-x-panal-records-f600",
+      "day": "2026-11-14",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "F600",
+      "start": "18:00",
+      "end": "19:30"
+    },
+    {
+      "id": "cfcl2026-20261114-grieta-x-panal-records-elias-deepman",
+      "day": "2026-11-14",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "ELIAS DEEPMAN",
+      "start": "19:30",
+      "end": "21:30",
+      "note": "Horario 19:30–21:30 sujeto a verificación por discrepancia gráfica del cartel."
+    },
+    {
+      "id": "cfcl2026-20261115-main-stage-o-sessions",
+      "day": "2026-11-15",
+      "stage": "MAIN STAGE",
+      "artist": "O-SESSIONS",
+      "start": "13:00",
+      "end": "13:55"
+    },
+    {
+      "id": "cfcl2026-20261115-main-stage-miss-javi",
+      "day": "2026-11-15",
+      "stage": "MAIN STAGE",
+      "artist": "MISS JAVI",
+      "start": "13:55",
+      "end": "14:55"
+    },
+    {
+      "id": "cfcl2026-20261115-main-stage-innellea",
+      "day": "2026-11-15",
+      "stage": "MAIN STAGE",
+      "artist": "INNELLEA",
+      "start": "14:55",
+      "end": "16:15"
+    },
+    {
+      "id": "cfcl2026-20261115-main-stage-hugel",
+      "day": "2026-11-15",
+      "stage": "MAIN STAGE",
+      "artist": "HUGEL",
+      "start": "16:20",
+      "end": "17:50"
+    },
+    {
+      "id": "cfcl2026-20261115-main-stage-fisher",
+      "day": "2026-11-15",
+      "stage": "MAIN STAGE",
+      "artist": "FISHER",
+      "start": "18:00",
+      "end": "19:30"
+    },
+    {
+      "id": "cfcl2026-20261115-main-stage-charlotte-de-witte",
+      "day": "2026-11-15",
+      "stage": "MAIN STAGE",
+      "artist": "CHARLOTTE DE WITTE",
+      "start": "19:40",
+      "end": "21:10"
+    },
+    {
+      "id": "cfcl2026-20261115-main-stage-calvin-harris",
+      "day": "2026-11-15",
+      "stage": "MAIN STAGE",
+      "artist": "CALVIN HARRIS",
+      "start": "21:30",
+      "end": "23:00"
+    },
+    {
+      "id": "cfcl2026-20261115-a-stage-ania",
+      "day": "2026-11-15",
+      "stage": "A STAGE",
+      "artist": "ANIA",
+      "start": "13:00",
+      "end": "13:50"
+    },
+    {
+      "id": "cfcl2026-20261115-a-stage-colayuta",
+      "day": "2026-11-15",
+      "stage": "A STAGE",
+      "artist": "COLAYUTA",
+      "start": "13:50",
+      "end": "14:45"
+    },
+    {
+      "id": "cfcl2026-20261115-a-stage-aaron-hibell",
+      "day": "2026-11-15",
+      "stage": "A STAGE",
+      "artist": "AARON HIBELL",
+      "start": "14:45",
+      "end": "16:00"
+    },
+    {
+      "id": "cfcl2026-20261115-a-stage-jaden-bojsen",
+      "day": "2026-11-15",
+      "stage": "A STAGE",
+      "artist": "JADEN BOJSEN",
+      "start": "16:00",
+      "end": "17:15"
+    },
+    {
+      "id": "cfcl2026-20261115-a-stage-bassjackers",
+      "day": "2026-11-15",
+      "stage": "A STAGE",
+      "artist": "BASSJACKERS",
+      "start": "17:15",
+      "end": "18:30"
+    },
+    {
+      "id": "cfcl2026-20261115-a-stage-loud-luxury",
+      "day": "2026-11-15",
+      "stage": "A STAGE",
+      "artist": "LOUD LUXURY",
+      "start": "18:30",
+      "end": "20:00"
+    },
+    {
+      "id": "cfcl2026-20261115-a-stage-morten",
+      "day": "2026-11-15",
+      "stage": "A STAGE",
+      "artist": "MORTEN",
+      "start": "20:00",
+      "end": "21:30"
+    },
+    {
+      "id": "cfcl2026-20261115-cream-tweeter",
+      "day": "2026-11-15",
+      "stage": "CREAM",
+      "artist": "TWEETER",
+      "start": "13:00",
+      "end": "14:00"
+    },
+    {
+      "id": "cfcl2026-20261115-cream-gianni-b2b-fco-martinez",
+      "day": "2026-11-15",
+      "stage": "CREAM",
+      "artist": "GIANNI B2B FCO MARTINEZ",
+      "start": "14:00",
+      "end": "15:30"
+    },
+    {
+      "id": "cfcl2026-20261115-cream-camilo-gil",
+      "day": "2026-11-15",
+      "stage": "CREAM",
+      "artist": "CAMILO GIL",
+      "start": "15:30",
+      "end": "16:30"
+    },
+    {
+      "id": "cfcl2026-20261115-cream-sosa",
+      "day": "2026-11-15",
+      "stage": "CREAM",
+      "artist": "SOSA",
+      "start": "16:30",
+      "end": "18:00"
+    },
+    {
+      "id": "cfcl2026-20261115-cream-nic-fanciulli",
+      "day": "2026-11-15",
+      "stage": "CREAM",
+      "artist": "NIC FANCIULLI",
+      "start": "18:00",
+      "end": "19:30"
+    },
+    {
+      "id": "cfcl2026-20261115-cream-kolsch",
+      "day": "2026-11-15",
+      "stage": "CREAM",
+      "artist": "KÖLSCH",
+      "start": "19:30",
+      "end": "20:55"
+    },
+    {
+      "id": "cfcl2026-20261115-cream-faithless-sound-system",
+      "day": "2026-11-15",
+      "stage": "CREAM",
+      "artist": "FAITHLESS SOUND SYSTEM",
+      "start": "21:00",
+      "end": "22:00"
+    },
+    {
+      "id": "cfcl2026-20261115-feral-marcelo-antonio",
+      "day": "2026-11-15",
+      "stage": "FERAL",
+      "artist": "MARCELO ANTONIO",
+      "start": "13:00",
+      "end": "14:20"
+    },
+    {
+      "id": "cfcl2026-20261115-feral-nplnsss",
+      "day": "2026-11-15",
+      "stage": "FERAL",
+      "artist": "NPLNSSS",
+      "start": "14:20",
+      "end": "15:40"
+    },
+    {
+      "id": "cfcl2026-20261115-feral-anfisa-letyago",
+      "day": "2026-11-15",
+      "stage": "FERAL",
+      "artist": "ANFISA LETYAGO",
+      "start": "15:40",
+      "end": "17:05"
+    },
+    {
+      "id": "cfcl2026-20261115-feral-ame-live",
+      "day": "2026-11-15",
+      "stage": "FERAL",
+      "artist": "ÂME LIVE",
+      "start": "17:10",
+      "end": "18:10"
+    },
+    {
+      "id": "cfcl2026-20261115-feral-enrico-sangiuliano",
+      "day": "2026-11-15",
+      "stage": "FERAL",
+      "artist": "ENRICO SANGIULIANO",
+      "start": "18:10",
+      "end": "19:40"
+    },
+    {
+      "id": "cfcl2026-20261115-feral-delia",
+      "day": "2026-11-15",
+      "stage": "FERAL",
+      "artist": "DELIA",
+      "start": "19:40",
+      "end": "21:10"
+    },
+    {
+      "id": "cfcl2026-20261115-feral-yanamaste-live",
+      "day": "2026-11-15",
+      "stage": "FERAL",
+      "artist": "YANAMASTE LIVE",
+      "start": "21:15",
+      "end": "22:45"
+    },
+    {
+      "id": "cfcl2026-20261115-radio-carolina-syntrovert",
+      "day": "2026-11-15",
+      "stage": "RADIO CAROLINA",
+      "artist": "SYNTROVERT",
+      "start": "13:00",
+      "end": "14:00"
+    },
+    {
+      "id": "cfcl2026-20261115-radio-carolina-urubmara",
+      "day": "2026-11-15",
+      "stage": "RADIO CAROLINA",
+      "artist": "URUBMARA",
+      "start": "14:00",
+      "end": "15:00"
+    },
+    {
+      "id": "cfcl2026-20261115-radio-carolina-alex-brugnara",
+      "day": "2026-11-15",
+      "stage": "RADIO CAROLINA",
+      "artist": "ALEX BRUGNARA",
+      "start": "15:00",
+      "end": "16:00"
+    },
+    {
+      "id": "cfcl2026-20261115-radio-carolina-fanvel",
+      "day": "2026-11-15",
+      "stage": "RADIO CAROLINA",
+      "artist": "FANVEL",
+      "start": "16:00",
+      "end": "17:00"
+    },
+    {
+      "id": "cfcl2026-20261115-radio-carolina-ica-dj",
+      "day": "2026-11-15",
+      "stage": "RADIO CAROLINA",
+      "artist": "ICA DJ",
+      "start": "17:00",
+      "end": "18:00"
+    },
+    {
+      "id": "cfcl2026-20261115-radio-carolina-josefina",
+      "day": "2026-11-15",
+      "stage": "RADIO CAROLINA",
+      "artist": "JOSEFINA",
+      "start": "18:00",
+      "end": "19:00"
+    },
+    {
+      "id": "cfcl2026-20261115-radio-carolina-luka-kuhnow",
+      "day": "2026-11-15",
+      "stage": "RADIO CAROLINA",
+      "artist": "LUKA KUHNOW",
+      "start": "19:00",
+      "end": "20:00"
+    },
+    {
+      "id": "cfcl2026-20261115-radio-carolina-juan-hinrichsen",
+      "day": "2026-11-15",
+      "stage": "RADIO CAROLINA",
+      "artist": "JUAN HINRICHSEN",
+      "start": "20:00",
+      "end": "21:00"
+    },
+    {
+      "id": "cfcl2026-20261115-grieta-x-panal-records-dupouy",
+      "day": "2026-11-15",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "DUPØUY",
+      "start": "13:00",
+      "end": "15:00"
+    },
+    {
+      "id": "cfcl2026-20261115-grieta-x-panal-records-weisser",
+      "day": "2026-11-15",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "WEISSER",
+      "start": "15:00",
+      "end": "16:30"
+    },
+    {
+      "id": "cfcl2026-20261115-grieta-x-panal-records-alisu",
+      "day": "2026-11-15",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "ALISÚ",
+      "start": "16:30",
+      "end": "18:00"
+    },
+    {
+      "id": "cfcl2026-20261115-grieta-x-panal-records-fuzzler",
+      "day": "2026-11-15",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "FUZZLER",
+      "start": "18:00",
+      "end": "20:00"
+    },
+    {
+      "id": "cfcl2026-20261115-grieta-x-panal-records-potenciometro",
+      "day": "2026-11-15",
+      "stage": "GRIETA X PANAL RECORDS",
+      "artist": "POTENCIÓMETRO",
+      "start": "20:00",
+      "end": "21:30"
+    }
+  ]
+}
