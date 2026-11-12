@@ -3,6 +3,34 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      festival_lineups: {
+        Row: {
+          user_id: string;
+          festival_key: string;
+          selected_ids: string[];
+          maybe_ids: string[];
+          no_ids: string[];
+          favorite_styles: string[];
+          privacy_notice_version: string;
+          beta_agreement_version: string;
+          consent_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          festival_key?: string;
+          selected_ids?: string[];
+          maybe_ids?: string[];
+          no_ids?: string[];
+          favorite_styles?: string[];
+          privacy_notice_version?: string;
+          beta_agreement_version?: string;
+          consent_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["festival_lineups"]["Row"]>;
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;
