@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Download, Pause, Play, RotateCcw, Sparkles } from "lucide-react";
+import InstagramJourneyExport from "@/components/festival/instagram-journey-export";
+import { clockProgress } from "@/lib/festival/raver-heart";
 import { STAGE_META, type MusicStyle } from "@/lib/festival/music-discovery";
 import { type AttendanceMap, type FestivalSet, type RouteStep, suggestRoute, toMinutes, formatClock, getTightStageChanges } from "@/lib/festival/route-engine";
 
 type Props={day:string;allSets:FestivalSet[];attendance:AttendanceMap;tastes:MusicStyle[]};
-const W=1100,H=650,DAY_START=780,DAY_END=1380;
+const W=1100,H=650;
+const dayLimits=(sets:FestivalSet[],day:string)=>{const matching=sets.filter(s=>s.day===day);return {first:Math.min(...matching.map(s=>toMinutes(s.start))),last:Math.max(...matching.map(s=>toMinutes(s.end)))};};
 const firstColor=(stage:string)=>STAGE_META[stage]?.accent??"#baff81";
 const activeAt=(sets:FestivalSet[],day:string,stage:string,minute:number)=>
   sets.find(s=>s.day===day&&s.stage===stage&&toMinutes(s.start)<=minute&&minute<toMinutes(s.end));
@@ -34,7 +37,8 @@ function phaseInfo(minute:number){
 function renderScene(canvas:HTMLCanvasElement,allSets:FestivalSet[],route:RouteStep[],day:string,ratio:number,manualStage:string|null){
   if(canvas.width!==W)canvas.width=W;if(canvas.height!==H)canvas.height=H;
   const ctx=canvas.getContext("2d");if(!ctx)return;
-  const minute=DAY_START+Math.round(ratio*(DAY_END-DAY_START));
+  const limits=dayLimits(allSets,day);
+  const minute=limits.first+Math.round(ratio*(limits.last-limits.first));
   const current=route.find(s=>toMinutes(s.start)<=minute&&minute<toMinutes(s.end));
   const upcoming=route.find(s=>toMinutes(s.start)>minute);
   const stage=manualStage??current?.stage??upcoming?.stage??route.at(-1)?.stage??"MAIN STAGE";
@@ -129,7 +133,8 @@ export default function AnimatedRoute({day,allSets,attendance,tastes}:Props){
   const [manualStage,setManualStage]=useState<string|null>(null);
   const [exporting,setExporting]=useState(false);
   const [message,setMessage]=useState("");
-  const minute=DAY_START+Math.round(progress*(DAY_END-DAY_START));
+  const limits=useMemo(()=>dayLimits(allSets,day),[allSets,day]);
+  const minute=limits.first+Math.round(progress*(limits.last-limits.first));
   const currentStage=manualStage??route.find(s=>toMinutes(s.start)<=minute&&minute<toMinutes(s.end))?.stage??route.find(s=>toMinutes(s.start)>minute)?.stage??route.at(-1)?.stage??"MAIN STAGE";
   const dayLabel=phaseInfo(minute).label;
   const paint=useCallback((ratio:number)=>{
@@ -196,7 +201,7 @@ export default function AnimatedRoute({day,allSets,attendance,tastes}:Props){
     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
       <div><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.2em] text-[#b7ff75]"><Sparkles size={16}/> Escenarios vivos</p><h2 className="mt-2 text-2xl font-black sm:text-3xl">Animar mi ruta</h2>
         <p className="mt-2 max-w-2xl text-sm text-zinc-300">Avanza de la tarde al atardecer y la noche. Cambian la iluminación, el escenario y el DJ que está tocando. Sin avatar.</p></div>
-      <span className="rounded-full border border-[#bcff73]/30 bg-[#bbff70]/10 px-3 py-2 text-sm text-[#caff95]">{dayLabel} · {formatClock(minute)}</span>
+      <span className="rounded-full border border-[#bcff73]/30 bg-[#bbff70]/10 px-3 py-2 text-sm text-[#caff95]">{dayLabel} · {formatClock(minute)} · {clockProgress(minute,limits.first,limits.last)}% del reloj</span>
     </div>
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-black"><canvas ref={canvasRef} width={W} height={H} className="h-auto w-full" role="img" aria-label={"Animación ilustrativa de "+currentStage+" a las "+formatClock(minute)+", ambiente "+dayLabel}/></div>
     <p className="mt-2 text-xs text-zinc-400">Visualización artística basada en los horarios; no representa la infraestructura real ni la ubicación física de los escenarios.</p>
@@ -211,7 +216,8 @@ export default function AnimatedRoute({day,allSets,attendance,tastes}:Props){
       <button type="button" onClick={exportVideo} disabled={!route.length||exporting} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-cyan/50 px-4 text-sm text-cyan disabled:opacity-40"><Download size={16}/> {exporting?"Exportando…":"Descargar video"}</button>
     </div>
     <label className="mt-4 block text-xs font-semibold uppercase tracking-wider text-zinc-400">Hora del festival · {formatClock(minute)}
-      <input type="range" min="0" max="1000" value={Math.round(progress*1000)} disabled={exporting} onChange={e=>{setPlaying(false);setProgress(Number(e.target.value)/1000);}} className="mt-2 w-full accent-lime-300"/>
+      <input type="range" min="0" max="1000" value={Math.round(progress*1000)} disabled={exporting} onChange={e=>{setPlaying(false);setProgress(Number(e.target.value)/1000);}} className="mt-2 w-full accent-lime-300" aria-label="Posición del reloj del festival"/>
+      <span className="mt-1 flex justify-between text-[10px] text-zinc-400"><span>{formatClock(limits.first)} · 0%</span><span>Hora: {formatClock(minute)}</span><span>{formatClock(limits.last)} · 100%</span></span>
     </label>
     <div className="mt-4 grid gap-2 sm:grid-cols-3">
       {stages.filter((s)=>s===currentStage||stages.indexOf(s)<2).slice(0,3).map(stage=>{
@@ -224,6 +230,7 @@ export default function AnimatedRoute({day,allSets,attendance,tastes}:Props){
     </div>
     {warnings.length>0&&<p className="mt-3 rounded-xl border border-amber-400/30 p-3 text-sm text-amber-200">⚠️ {warnings.length} cambios de escenario con menos de 15 minutos de margen. Confirma distancias reales antes de caminar.</p>}
     {message&&<p role="status" className="mt-3 text-sm text-cyan">{message}</p>}
-    <p className="mt-3 text-xs text-zinc-500">El cálculo de la ruta se realiza en tu dispositivo, sin GPS ni recopilación de movimientos. El video no incorpora canciones ni fotografías de terceros.</p>
+    <p className="mt-3 text-xs text-zinc-500">El reloj va del 0% en el primer minuto al 100% en el último minuto. La cobertura real de sets guardados se calcula aparte y no añade traslados desconocidos. No utilizamos GPS.</p>
+    <InstagramJourneyExport day={day} allSets={allSets} route={route} attendance={attendance}/>
   </section>;
 }
