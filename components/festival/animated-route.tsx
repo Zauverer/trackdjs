@@ -31,7 +31,7 @@ function label(ctx:CanvasRenderingContext2D, str:string, x:number, y:number, siz
   if(maxWidth) ctx.fillText(str,x,y,maxWidth); else ctx.fillText(str,x,y);
 }
 function stageXY(index:number) {
-  return {x: 196 + (index%3)*355, y: 230 + Math.floor(index/3)*235};
+  return {x: 196 + (index%3)*355, y: 210 + Math.floor(index/3)*225};
 }
 function paintAvatar(ctx:CanvasRenderingContext2D,x:number,y:number,phase:number,style:AvatarStyle,accessory:Accessory,walking:boolean) {
   const skin="#ffcfaa", look=PAL[style];
@@ -171,8 +171,8 @@ export default function AnimatedRoute({day, allSets, attendance, tastes}:Props){
     if(typeof MediaRecorder==="undefined"||!canvas.captureStream){
       setMessage("Este navegador no permite exportar video. Puedes reproducir la animación en pantalla.");return;
     }
-    const mime=["video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"].find(t=>MediaRecorder.isTypeSupported(t));
-    if(!mime){setMessage("Tu navegador no admite la exportación WebM. Usa Play para verla.");return;}
+    const mime=["video/mp4;codecs=avc1.42E01E","video/mp4","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"].find(t=>MediaRecorder.isTypeSupported(t));
+    if(!mime){setMessage("Tu navegador no admite la exportación de video. Usa Play para verla.");return;}
     setPlaying(false);setExporting(true);exportingRef.current=true;setMessage("Generando video sin audio ni canciones con derechos de autor…");
     try {
       const stream=canvas.captureStream(24);
@@ -185,9 +185,9 @@ export default function AnimatedRoute({day, allSets, attendance, tastes}:Props){
         if(!chunks.length){setMessage("El navegador no pudo generar el video.");draw(progress);return;}
         const url=URL.createObjectURL(new Blob(chunks,{type:"video/webm"}));
         const link=document.createElement("a");link.href=url;
-        link.download="trackdjs-creamfields-ruta-"+day+".webm";
+        const extension=mime.startsWith("video/mp4")?"mp4":"webm";\n        link.download="trackdjs-creamfields-ruta-"+day+"."+extension;
         link.click();window.setTimeout(()=>URL.revokeObjectURL(url),30000);
-        setMessage("Video WebM descargado. Compártelo como archivo o video en WhatsApp.");
+        setMessage("Video descargado. Si WhatsApp no admite su formato, compártelo como archivo o utiliza la animación interactiva.");
         draw(progress);
       };
       recorder.onerror=()=>{setMessage("La exportación falló. Prueba la reproducción en pantalla.");};
