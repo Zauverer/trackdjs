@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Download, Pause, Play, RotateCcw, Sparkles } from "lucide-react";
-import { STAGE_META, type Attendance, type MusicStyle } from "@/lib/festival/music-discovery";
+import { STAGE_META, type MusicStyle } from "@/lib/festival/music-discovery";
 import { type AttendanceMap, type FestivalSet, type RouteStep, suggestRoute, toMinutes, formatClock, getTightStageChanges } from "@/lib/festival/route-engine";
 
 type Props = {
