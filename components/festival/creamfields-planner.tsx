@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, CircleHelp, Heart, Headphones, ListMusic, Map, Music2, PlayCircle, Search, Share2, SlidersHorizontal, Sparkles, Users, Volume2 } from "lucide-react";
+import { CalendarDays, Heart, Headphones, ListMusic, Map, Music2, PlayCircle, Search, Share2, SlidersHorizontal, Sparkles, Users } from "lucide-react";
 import AnimatedRoute from "@/components/festival/animated-route";
 import festival from "@/lib/festival/creamfields-2026.json";
-import { getStyles, LICENSED_ARTIST_IMAGES, STAGE_META, STYLE_OPTIONS, spotifyArtistSearch, spotifyPlaylistSearch, soundcloudSetSearch, type Attendance, type MusicStyle } from "@/lib/festival/music-discovery";
+import { getStyles, LICENSED_ARTIST_IMAGES, STAGE_META, STYLE_OPTIONS, spotifyArtistSearch, soundcloudSetSearch, type Attendance, type MusicStyle } from "@/lib/festival/music-discovery";
 import { calculateMatch, decodeSelection, encodeSelection, getAttendanceConflicts, suggestRoute, type AttendanceMap, type FestivalSet } from "@/lib/festival/route-engine";
 import { downloadIcs, googleCalendarUrl } from "@/lib/festival/calendar";
 
