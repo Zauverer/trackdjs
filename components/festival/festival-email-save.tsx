@@ -114,34 +114,34 @@ export default function FestivalEmailSave({selected_ids,maybe_ids,no_ids,favorit
     });
     setMessage("Tu agenda se recuperó correctamente.");
   }
-  return <div role="dialog" aria-modal="true" aria-labelledby="save-festival-title" className="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-[#03080e]/85 p-4 backdrop-blur-md">
-    <div className="my-auto w-full max-w-lg rounded-[2rem] border border-[#c7ff80]/25 bg-[#101a29] p-5 text-white shadow-2xl sm:p-7">
+  return <div role="dialog" aria-modal="true" aria-labelledby="save-festival-title" className="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-carbon/85 p-4 backdrop-blur-md">
+    <div className="my-auto w-full max-w-lg rounded-[2rem] border border-amber/25 bg-surface p-5 text-white shadow-2xl sm:p-7">
       <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[.18em] text-[#c9ff81]"><Cloud size={18}/> TRACKDJS / MI CUENTA</span>
+        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.18em] text-amber"><Cloud size={18}/> TRACKDJS / MI CUENTA</span>
         <button type="button" onClick={onClose} aria-label="Cerrar ventana" className="rounded-full border border-white/20 p-2"><X size={19}/></button>
       </div>
-      <h2 id="save-festival-title" className="mt-5 text-3xl font-black tracking-tight">Guarda tu experiencia.</h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-300">Explorar, compartir y descargar sigue siendo gratis y sin cuenta. Para guardar y recuperar tu lineup en otros dispositivos solo necesitas un correo electrónico.</p>
-      <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-white/[.035] p-3 text-xs text-zinc-300"><span>{selected_ids.length} sets marcados Voy</span><span className="text-right">{favorite_styles.length} estilos elegidos</span></div>
-      <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-zinc-200">
+      <h2 id="save-festival-title" className="font-display mt-5 text-3xl font-semibold tracking-tight">Guarda tu experiencia.</h2>
+      <p className="mt-3 text-sm leading-6 text-warm-dim">Explorar, compartir y descargar sigue siendo gratis y sin cuenta. Para guardar y recuperar tu lineup en otros dispositivos solo necesitas un correo electrónico.</p>
+      <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-white/[.035] p-3 text-xs text-warm-dim"><span>{selected_ids.length} sets marcados Voy</span><span className="text-right">{favorite_styles.length} estilos elegidos</span></div>
+      <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-warm-dim">
         <input type="checkbox" checked={accepted} onChange={e=>setAccepted(e.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-lime-300"/>
-        <span>Autorizo expresamente guardar mis sets y preferencias en mi cuenta de TrackDJs, asociada a mi correo. Leí la <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-[#c9ff80]">Política de Privacidad</a> y las <a href="/beta/terms" target="_blank" rel="noopener noreferrer" className="underline text-[#c9ff80]">condiciones beta</a>. Puedo solicitar borrar mis datos.</span>
+        <span>Autorizo expresamente guardar mis sets y preferencias en mi cuenta de TrackDJs, asociada a mi correo. Leí la <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-amber">Política de Privacidad</a> y las <a href="/beta/terms" target="_blank" rel="noopener noreferrer" className="underline text-amber">condiciones beta</a>. Puedo solicitar borrar mis datos.</span>
       </label>
-      {!client||!CLOUD_SAVE_ENABLED?<p className="mt-5 rounded-xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-200">El guardado online está en fase de activación. Requiere Supabase, tablas de lineups y aprobación de privacidad. Puedes seguir usando el modo invitado, compartir tu enlace y exportar la agenda.</p>:
-      loading?<p className="mt-5 text-sm text-zinc-400">Comprobando tu sesión…</p>:
+      {!client||!CLOUD_SAVE_ENABLED?<p className="mt-5 rounded-xl border border-amber/30 bg-amber/10 p-4 text-sm text-amber">El guardado online está en fase de activación. Requiere Supabase, tablas de lineups y aprobación de privacidad. Puedes seguir usando el modo invitado, compartir tu enlace y exportar la agenda.</p>:
+      loading?<p className="mt-5 text-sm text-warm-dim">Comprobando tu sesión…</p>:
       userId?<div className="mt-5 space-y-3">
-        <p className="flex items-center gap-2 text-sm text-[#c8ff88]"><CheckCircle2 size={18}/> Cuenta verificada: {userEmail||"Acceso por correo"}</p>
-        <button type="button" disabled={!accepted||busy} onClick={()=>void save()} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#c9ff82] px-4 font-black text-[#091710] disabled:opacity-40"><LockKeyhole size={18}/>{busy?"Guardando…":"Guardar en mi cuenta"}</button>
-        <button type="button" disabled={busy} onClick={()=>void restore()} className="min-h-11 w-full rounded-xl border border-white/20 px-4 text-sm font-bold">Recuperar mi último lineup</button>
+        <p className="flex items-center gap-2 text-sm text-amber"><CheckCircle2 size={18}/> Cuenta verificada: {userEmail||"Acceso por correo"}</p>
+        <button type="button" disabled={!accepted||busy} onClick={()=>void save()} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-control px-4 font-semibold bg-warm text-on-action disabled:bg-raised disabled:text-warm-faint"><LockKeyhole size={18}/>{busy?"Guardando…":"Guardar en mi cuenta"}</button>
+        <button type="button" disabled={busy} onClick={()=>void restore()} className="min-h-11 w-full rounded-xl border border-white/20 px-4 text-sm font-semibold">Recuperar mi último lineup</button>
       </div>:
       <form onSubmit={e=>void sendLink(e)} className="mt-5 space-y-3">
-        <label className="block text-sm font-bold" htmlFor="save-email">Tu correo electrónico</label>
-        <input id="save-email" required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="correo@ejemplo.com" className="min-h-12 w-full rounded-xl border border-white/25 bg-white/[.04] px-4 text-white outline-none focus:border-[#c9ff88]"/>
-        <button type="submit" disabled={!accepted||busy} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#c9ff82] px-4 font-black text-[#091710] disabled:opacity-40"><Mail size={18}/>{busy?"Enviando…":"Enviarme enlace para guardar"}</button>
-        <p className="text-xs text-zinc-400">Sin contraseña. El correo solo se enviará al pulsar el botón; enviar el enlace no guarda todavía tu selección.</p>
+        <label className="block text-sm font-semibold" htmlFor="save-email">Tu correo electrónico</label>
+        <input id="save-email" required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="correo@ejemplo.com" className="min-h-12 w-full rounded-xl border border-white/25 bg-white/[.04] px-4 text-white outline-none focus:border-amber"/>
+        <button type="submit" disabled={!accepted||busy} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-control px-4 font-semibold bg-warm text-on-action disabled:bg-raised disabled:text-warm-faint"><Mail size={18}/>{busy?"Enviando…":"Enviarme enlace para guardar"}</button>
+        <p className="text-xs text-warm-dim">Sin contraseña. El correo solo se enviará al pulsar el botón; enviar el enlace no guarda todavía tu selección.</p>
       </form>}
-      {message&&<p role="status" className={"mt-4 rounded-xl border p-3 text-sm "+(saved?"border-[#baff76]/40 text-[#cfff9f]":"border-white/15 text-zinc-200")}>{message}</p>}
-      <p className="mt-4 flex gap-2 text-xs text-zinc-500"><ShieldCheck size={17} className="shrink-0"/>No registramos automáticamente a tus amigos ni enviamos tu selección antes de tu autorización.</p>
+      {message&&<p role="status" className={"mt-4 rounded-xl border p-3 text-sm "+(saved?"border-amber/40 text-amber":"border-white/15 text-warm-dim")}>{message}</p>}
+      <p className="mt-4 flex gap-2 text-xs text-warm-faint"><ShieldCheck size={17} className="shrink-0"/>No registramos automáticamente a tus amigos ni enviamos tu selección antes de tu autorización.</p>
     </div>
   </div>;
 }

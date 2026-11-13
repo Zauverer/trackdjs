@@ -199,38 +199,38 @@ export default function AnimatedRoute({day,allSets,attendance,tastes}:Props){
   }
   return <section id="animated-route" className="mt-8 scroll-mt-24 rounded-3xl border border-white/15 bg-[#0b1020] p-4 sm:p-6">
     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <div><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.2em] text-[#b7ff75]"><Sparkles size={16}/> Escenarios vivos</p><h2 className="mt-2 text-2xl font-black sm:text-3xl">Animar mi ruta</h2>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-300">Avanza de la tarde al atardecer y la noche. Cambian la iluminación, el escenario y el DJ que está tocando. Sin avatar.</p></div>
+      <div><p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.2em] text-[#b7ff75]"><Sparkles size={16}/> Escenarios vivos</p><h2 className="font-display mt-2 text-2xl font-semibold sm:text-3xl">Animar mi ruta</h2>
+        <p className="mt-2 max-w-2xl text-sm text-warm-dim">Avanza de la tarde al atardecer y la noche. Cambian la iluminación, el escenario y el DJ que está tocando. Sin avatar.</p></div>
       <span className="rounded-full border border-[#bcff73]/30 bg-[#bbff70]/10 px-3 py-2 text-sm text-[#caff95]">{dayLabel} · {formatClock(minute)} · {clockProgress(minute,limits.first,limits.last)}% del reloj</span>
     </div>
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-black"><canvas ref={canvasRef} width={W} height={H} className="h-auto w-full" role="img" aria-label={"Animación ilustrativa de "+currentStage+" a las "+formatClock(minute)+", ambiente "+dayLabel}/></div>
-    <p className="mt-2 text-xs text-zinc-400">Visualización artística basada en los horarios; no representa la infraestructura real ni la ubicación física de los escenarios.</p>
+    <p className="mt-2 text-xs text-warm-dim">Visualización artística basada en los horarios; no representa la infraestructura real ni la ubicación física de los escenarios.</p>
     <div className="mt-4 flex flex-wrap gap-2" aria-label="Selecciona un escenario">
-      <button type="button" onClick={()=>setManualStage(null)} aria-pressed={manualStage===null} className={"rounded-xl border px-3 py-2 text-xs font-bold "+(manualStage===null?"border-[#c6ff75] bg-[#c6ff75]/15 text-[#caff91]":"border-white/15")}>↳ Seguir mi ruta</button>
+      <button type="button" onClick={()=>setManualStage(null)} aria-pressed={manualStage===null} className={"rounded-xl border px-3 py-2 text-xs font-semibold "+(manualStage===null?"border-[#c6ff75] bg-[#c6ff75]/15 text-[#caff91]":"border-white/15")}>↳ Seguir mi ruta</button>
       {stages.map(stage=><button key={stage} type="button" onClick={()=>setManualStage(stage)} aria-pressed={currentStage===stage} className={"rounded-xl border px-3 py-2 text-xs "+(currentStage===stage?"border-[#c6ff75] bg-[#c6ff75]/15 text-[#caff91]":"border-white/15")}>{STAGE_META[stage]?.label??stage}</button>)}
     </div>
     <div className="mt-4 flex flex-wrap items-center gap-2">
-      <button type="button" onClick={()=>{if(progress>=1)setProgress(0);setPlaying(v=>!v);}} disabled={!route.length||exporting} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#c6ff74] px-5 py-2 font-black text-[#0b1420] disabled:opacity-40">{playing?<Pause size={17}/>:<Play size={17}/>} {playing?"Pausar":"Reproducir"}</button>
+      <button type="button" onClick={()=>{if(progress>=1)setProgress(0);setPlaying(v=>!v);}} disabled={!route.length||exporting} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#c6ff74] px-5 py-2 font-semibold text-[#0b1420] disabled:opacity-40">{playing?<Pause size={17}/>:<Play size={17}/>} {playing?"Pausar":"Reproducir"}</button>
       <button type="button" onClick={()=>{setPlaying(false);setProgress(0);}} disabled={exporting} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 px-4 text-sm"><RotateCcw size={16}/> Reiniciar</button>
       <button type="button" onClick={()=>setSpeed(v=>v===1?2:1)} disabled={exporting} className="min-h-11 rounded-xl border border-white/20 px-4 text-sm">Velocidad {speed}×</button>
       <button type="button" onClick={exportVideo} disabled={!route.length||exporting} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-cyan/50 px-4 text-sm text-cyan disabled:opacity-40"><Download size={16}/> {exporting?"Exportando…":"Descargar video"}</button>
     </div>
-    <label className="mt-4 block text-xs font-semibold uppercase tracking-wider text-zinc-400">Hora del festival · {formatClock(minute)}
+    <label className="mt-4 block text-xs font-semibold uppercase tracking-wider text-warm-dim">Hora del festival · {formatClock(minute)}
       <input type="range" min="0" max="1000" value={Math.round(progress*1000)} disabled={exporting} onChange={e=>{setPlaying(false);setProgress(Number(e.target.value)/1000);}} className="mt-2 w-full accent-lime-300" aria-label="Posición del reloj del festival"/>
-      <span className="mt-1 flex justify-between text-[10px] text-zinc-400"><span>{formatClock(limits.first)} · 0%</span><span>Hora: {formatClock(minute)}</span><span>{formatClock(limits.last)} · 100%</span></span>
+      <span className="mt-1 flex justify-between text-[10px] text-warm-dim"><span>{formatClock(limits.first)} · 0%</span><span>Hora: {formatClock(minute)}</span><span>{formatClock(limits.last)} · 100%</span></span>
     </label>
     <div className="mt-4 grid gap-2 sm:grid-cols-3">
       {stages.filter((s)=>s===currentStage||stages.indexOf(s)<2).slice(0,3).map(stage=>{
         const active=activeAt(allSets,day,stage,minute);
         return <button type="button" key={stage} onClick={()=>setManualStage(stage)} className="rounded-xl border border-white/10 bg-white/[.035] p-3 text-left">
-          <span className="text-[10px] font-black uppercase tracking-wider" style={{color:firstColor(stage)}}>{STAGE_META[stage]?.label??stage}</span>
-          <span className="mt-1 block truncate text-sm font-bold">{active?.artist??"Próximo set"}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider" style={{color:firstColor(stage)}}>{STAGE_META[stage]?.label??stage}</span>
+          <span className="mt-1 block truncate text-sm font-semibold">{active?.artist??"Próximo set"}</span>
         </button>;
       })}
     </div>
-    {warnings.length>0&&<p className="mt-3 rounded-xl border border-amber-400/30 p-3 text-sm text-amber-200">⚠️ {warnings.length} cambios de escenario con menos de 15 minutos de margen. Confirma distancias reales antes de caminar.</p>}
+    {warnings.length>0&&<p className="mt-3 rounded-xl border border-alert/35 p-3 text-sm text-alert">⚠️ {warnings.length} cambios de escenario con menos de 15 minutos de margen. Confirma distancias reales antes de caminar.</p>}
     {message&&<p role="status" className="mt-3 text-sm text-cyan">{message}</p>}
-    <p className="mt-3 text-xs text-zinc-500">El reloj va del 0% en el primer minuto al 100% en el último minuto. La cobertura real de sets guardados se calcula aparte y no añade traslados desconocidos. No utilizamos GPS.</p>
+    <p className="mt-3 text-xs text-warm-faint">El reloj va del 0% en el primer minuto al 100% en el último minuto. La cobertura real de sets guardados se calcula aparte y no añade traslados desconocidos. No utilizamos GPS.</p>
     <InstagramJourneyExport day={day} allSets={allSets} route={route} attendance={attendance}/>
   </section>;
 }

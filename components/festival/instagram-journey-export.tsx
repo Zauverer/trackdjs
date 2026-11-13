@@ -300,27 +300,27 @@ export default function InstagramJourneyExport({day,allSets,route,attendance}:Vi
   }
   return <section className="mt-5 rounded-3xl border border-[#baff77]/25 bg-[#101729] p-4 sm:p-6" aria-label="Exportar video vertical para Instagram">
     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <div><p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.2em] text-[#c9ff85]"><Film size={17}/> Instagram Journey</p>
-        <h3 className="mt-2 text-2xl font-black">Tu festival en video vertical</h3>
-        <p className="mt-2 max-w-xl text-sm text-zinc-300">Escenarios, DJs, luces, reloj acelerado y cierre con recorrido amarillo. Marca TrackDJs presente en cada escena.</p></div>
-      <span className="rounded-full border border-white/15 px-3 py-2 text-xs text-zinc-300">9:16 · 30 fps · {RUNTIME_SECONDS} s</span>
+      <div><p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.2em] text-[#c9ff85]"><Film size={17}/> Instagram Journey</p>
+        <h3 className="font-display mt-2 text-2xl font-semibold">Tu festival en video vertical</h3>
+        <p className="mt-2 max-w-xl text-sm text-warm-dim">Escenarios, DJs, luces, reloj acelerado y cierre con recorrido amarillo. Marca TrackDJs presente en cada escena.</p></div>
+      <span className="rounded-full border border-white/15 px-3 py-2 text-xs text-warm-dim">9:16 · 30 fps · {RUNTIME_SECONDS} s</span>
     </div>
     <div className="mx-auto flex max-w-sm flex-col gap-3">
       <canvas ref={canvasRef} width={1080} height={1920} className="aspect-[9/16] h-auto w-full rounded-2xl border border-white/10 bg-[#0a1021]" role="img" aria-label="Vista previa del video vertical TrackDJs"/>
-      <label className="block text-xs text-zinc-300">Explora la vista previa
+      <label className="block text-xs text-warm-dim">Explora la vista previa
         <input type="range" min="0" max="100" value={Math.round(preview*100)} onChange={e=>setPreview(Number(e.target.value)/100)} className="mt-2 w-full accent-lime-300" disabled={exporting}/>
       </label>
-      <label className="flex items-center justify-between gap-2 text-xs text-zinc-300">Resolución
+      <label className="flex items-center justify-between gap-2 text-xs text-warm-dim">Resolución
         <select value={quality} onChange={e=>setQuality(e.target.value as "720"|"1080")} disabled={exporting} className="rounded-lg border border-white/15 bg-[#1a2338] px-3 py-2 text-white">
           <option value="1080">1080 × 1920 (Full HD)</option>
           <option value="720">720 × 1280 (ligero)</option>
         </select>
       </label>
-      <button type="button" onClick={exportVideo} disabled={!route.length||exporting||supported==="none"} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#c7ff7a] px-4 font-black text-[#0b1b16] disabled:opacity-45"><Download size={18}/>{exporting?"Generando video…":supported==="mp4"?"Descargar MP4 para Instagram":supported==="webm"?"Descargar WebM (requiere convertir)":"Video no compatible"}</button>
+      <button type="button" onClick={exportVideo} disabled={!route.length||exporting||supported==="none"} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#c7ff7a] px-4 font-semibold text-[#0b1b16] disabled:opacity-45"><Download size={18}/>{exporting?"Generando video…":supported==="mp4"?"Descargar MP4 para Instagram":supported==="webm"?"Descargar WebM (requiere convertir)":"Video no compatible"}</button>
       <button type="button" onClick={copyCaption} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/20 px-4 text-sm"><Copy size={17}/> Copiar caption para Instagram</button>
     </div>
-    <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-zinc-400"><ShieldCheck size={17} className="shrink-0"/> Exportación local y sin música de terceros; los nombres de artistas son texto y no se descargan logos externos. El fondo es una ilustración original, no footage del recinto.</p>
-    {supported==="webm"&&<p className="mt-2 text-xs text-amber-200">Tu navegador solo ofrece WebM. Para publicar directamente en Instagram necesitas MP4 H.264 o MOV compatible.</p>}
+    <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-warm-dim"><ShieldCheck size={17} className="shrink-0"/> Exportación local y sin música de terceros; los nombres de artistas son texto y no se descargan logos externos. El fondo es una ilustración original, no footage del recinto.</p>
+    {supported==="webm"&&<p className="mt-2 text-xs text-amber">Tu navegador solo ofrece WebM. Para publicar directamente en Instagram necesitas MP4 H.264 o MOV compatible.</p>}
     {notice&&<p className="mt-3 text-sm text-[#d9ffb1]" role="status">{notice}</p>}
   </section>;
 }

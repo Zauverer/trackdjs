@@ -21,10 +21,10 @@ export async function generateMetadata({ searchParams }: {
 }
 
 export default function CreamfieldsPublicPage() {
-  return <div className="min-h-screen bg-[#080a12]">
+  return <div className="min-h-screen bg-carbon">
     <header className="mx-auto flex max-w-6xl items-center justify-between border-b border-white/10 px-4 py-5">
-      <Link href="/" className="flex items-center gap-2 font-extrabold text-white"><span className="rounded-xl bg-cyan p-2 text-[#080a12]"><AudioLines size={20} /></span> TrackDJs</Link>
-      <Link href="/app" className="text-sm font-medium text-zinc-400 transition hover:text-white">Explorar TrackDJs <span aria-hidden="true">↗</span></Link>
+      <Link href="/" className="flex items-center gap-2 font-semibold text-white"><span className="rounded-xl bg-warm p-2 text-on-action"><AudioLines size={20} /></span> TrackDJs</Link>
+      <Link href="/app" className="text-sm font-medium text-warm-dim transition hover:text-white">Explorar TrackDJs <span aria-hidden="true">↗</span></Link>
     </header>
     <CreamfieldsPlanner />
   </div>;

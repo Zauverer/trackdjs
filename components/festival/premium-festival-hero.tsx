@@ -29,7 +29,7 @@ export default function PremiumFestivalHero({
   const [dialView, setDialView] = useState<"bezel"|"rail">("bezel");
   const activeIndex = Math.max(0,stages.indexOf(selectedStage));
   const count = Math.max(1,stages.length);
-  const accent = STAGE_META[selectedStage]?.accent ?? "#c9ff84";
+  const accent = STAGE_META[selectedStage]?.accent ?? "#E0A355";
   const stageLabel=STAGE_META[selectedStage]?.label??selectedStage;
   const cssVar = {"--beam":accent,"--time":"5.5s"} as CSSProperties;
   const dialOptions=useMemo(()=>stages.map((stage,index)=>{
@@ -69,21 +69,21 @@ export default function PremiumFestivalHero({
         <p className={styles.heroText}>Selecciona una jornada, explora los escenarios con el bisel y crea un lineup que puedas compartir y comparar con tus amigos.</p>
         <div className={styles.meta}><span>CREAMFIELDS CHILE 2026</span><span>14—15 NOV</span><span>SANTIAGO</span></div>
         <div className="mt-6 flex flex-wrap gap-3">
-          <button type="button" onClick={onOpenArtists} className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#c9ff83] px-5 py-3 text-sm font-black text-[#08151c]">Explorar lineup <ArrowUpRight size={17}/></button>
-          <button type="button" onClick={onSave} className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/30 bg-[#0c1728]/65 px-5 py-3 text-sm font-semibold text-white">Guardar mi selección</button>
+          <button type="button" onClick={onOpenArtists} className="inline-flex min-h-12 items-center gap-2 rounded-control px-5 py-3 text-sm font-semibold bg-warm text-on-action disabled:bg-raised disabled:text-warm-faint">Explorar lineup <ArrowUpRight size={17}/></button>
+          <button type="button" onClick={onSave} className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/30 bg-raised/65 px-5 py-3 text-sm font-semibold text-white">Guardar mi selección</button>
         </div>
-        <p className="mt-4 text-xs text-[#b4bfd4]">Puedes explorar sin cuenta. Para guardar en la nube, ingresa solo con tu correo.</p>
+        <p className="mt-4 text-xs text-warm-dim">Puedes explorar sin cuenta. Para guardar en la nube, ingresa solo con tu correo.</p>
       </div>
       <div className={styles.controls}>
         <div className="mb-3 flex items-center justify-between gap-2">
-          <span className="text-[11px] font-black uppercase tracking-[.16em] text-[#c9ff87]">Seleccionar fiesta</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[.16em] text-warm-faint">Seleccionar fiesta</span>
           <Link href="/app/events" className={styles.eventLink}>Todas las fiestas <ArrowUpRight size={12} className="inline"/></Link>
         </div>
         <select className={styles.festivalPicker} value="creamfields" onChange={e=>{if(e.target.value==="explorar")window.location.assign("/app/events");}} aria-label="Selecciona una fiesta">
           <option value="creamfields">Creamfields Chile 2026 · 14–15 noviembre</option>
           <option value="explorar">Explorar otras fiestas en TrackDJs</option>
         </select>
-        <div className="mt-4 mb-2 text-[11px] font-black uppercase tracking-[.14em] text-[#aab9cc]">Jornada</div>
+        <div className="mt-4 mb-2 text-[11px] font-semibold uppercase tracking-[.14em] text-warm-dim">Jornada</div>
         <div className={styles.days}>{Object.keys(DATE_LABELS).map(date=><button type="button" key={date} aria-pressed={day===date} onClick={()=>onDayChange(date)}>{DATE_LABELS[date]}</button>)}</div>
         <div className={styles.selectorHeading}><span>Control de escenarios</span><div className={styles.toggle} aria-label="Cambiar vista de escenarios"><button type="button" aria-pressed={dialView==="bezel"} onClick={()=>setDialView("bezel")} title="Bisel giratorio"><Disc3 size={14}/></button><button type="button" aria-pressed={dialView==="rail"} onClick={()=>setDialView("rail")} title="Lista compacta"><List size={14}/></button></div></div>
         {dialView==="bezel"?

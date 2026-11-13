@@ -13,7 +13,7 @@ export default function PrivacyPage(){
       <section><h2 className="text-xl font-bold text-white">4. Compartir con amistades</h2><p>Los enlaces de invitación contienen elecciones musicales y opcionalmente un apodo cuando activas esa casilla. Cualquier persona con el enlace puede ver las elecciones compartidas. No se crean cuentas de amigos automáticamente.</p></section>
       <section><h2 className="text-xl font-bold text-white">5. Servicios, conservación y derechos</h2><p>Podemos usar servicios de hosting y autenticación como Vercel y Supabase si están configurados. Los datos de cuenta se conservan hasta que solicites su eliminación o se cierre el servicio. Puedes solicitar acceso, corrección, eliminación o consultar la revocación de consentimientos escribiendo a hello@trackdjs.com. No se venden datos personales ni se requiere aceptar marketing para usar la beta.</p></section>
       <section><h2 className="text-xl font-bold text-white">6. Imágenes externas</h2><p>Las fotografías y logos alojados en terceros solo se cargan si habilitas expresamente esa opción. No podemos controlar los registros de acceso que recopilen los proveedores de esos archivos.</p></section>
-      <p className="rounded-xl border border-amber-500/20 p-4 text-amber-100">Documento de beta pendiente de validación jurídica e identificación formal del responsable antes del lanzamiento del guardado público.</p>
+      <p className="rounded-xl border border-amber/25 p-4 text-amber">Documento de beta pendiente de validación jurídica e identificación formal del responsable antes del lanzamiento del guardado público.</p>
     </div>
     <Link href="/creamfields-2026" className="mt-8 inline-block text-sm font-bold text-[#c9ff88]">Volver al festival</Link>
   </main>;
